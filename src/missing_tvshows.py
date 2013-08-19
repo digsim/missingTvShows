@@ -40,6 +40,7 @@ if float(sys.version[:3])<3.0:
 else: 
     import configparser as ConfigParser
 import argparse
+import time
 from pytvdbapi import api
 
 class TVShows:
@@ -55,8 +56,13 @@ class TVShows:
         config.read("tvshows.cfg")
         self.__db = api.TVDB(config.get("Config", "api_key"))
         self.__database = config.get("Config", "db")
+        self.__tvdbdatabse = config.get("Config", "tvdbdb")
         self.__cwd = os.getcwd()
         self.__log.debug('Database '+self.__database)
+        self.__forceUpdate = False
+        
+        self.checkLocalTVDBDatabase()
+        
                             
                             
     def make_sql_queries(self):
@@ -74,9 +80,39 @@ class TVShows:
         return nonewatched,  somewatched
         
     def getTotalNumberOfEpisodes(self,  series_id,  season):
-        show = self.__db.get(series_id, "en" )
-        number_of_episodes = len(show[season])
+        con = sqlite3.connect(self.__tvdbdatabse)
+        cur = con.cursor()
+        cur.execute("Select * from THETVDB where seriesid = {:d} and season = {:d};".format(series_id,  season))
+        localshow = cur.fetchone()
+        number_of_episodes = 0
+        now = time.mktime(time.gmtime())
+        if not localshow or self.__forceUpdate:
+            show = self.__db.get(series_id, "en" )
+            number_of_episodes = len(show[season])
+            cur = con.cursor()
+            cur.execute('''INSERT INTO THETVDB VALUES (NULL, {:d}, {:d}, {:d}, {:f})'''.format(series_id,  season,  number_of_episodes,  now ))
+            con.commit()
+        elif self.__forceUpdate or (now-localshow[4] > 604800):
+            show = self.__db.get(series_id, "en" )
+            number_of_episodes = len(show[season])
+            cur = con.cursor()
+            cur.execute('''UPDATE THETVDB SET totalnumofepisodes={:d},  lastupdated={:f} where id = {:d}'''.format(number_of_episodes,  now,  localshow[0]))
+            con.commit()
+        else:
+            number_of_episodes = localshow[3]
+        
+        con.close()
         return number_of_episodes
+        
+    def checkLocalTVDBDatabase(self):
+        con = sqlite3.connect(self.__tvdbdatabse)
+        cur = con.cursor()
+        cur.execute("Select name from sqlite_master where type='table';")
+        if not cur.fetchall():
+            cur = con.cursor()
+            cur.execute('''CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)''')
+            con.commit()
+            con.close()
    
         
     def getSeriesInformation(self):
@@ -177,10 +213,13 @@ class TVShows:
             print(finished)
         
     def getArguments(self, argv):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("-i",  "--input",  help="input sqlite database file",  required=False)
+        parser = argparse.ArgumentParser(prog='missing_tvshows',  description='Parsing the local XBMC library for TV-Shows and discovers if new episodes are availalbe',  epilog='And that is how you use me')
+        parser.add_argument("-i",  "--input",  help="input sqlite database file",  required=False,  metavar='DATABASE')
+        parser.add_argument("-f",  "--force-update",  help="Force the update of the local TVDB Database",  required=False,  action="store_true",  dest='forceupdate')
         args = parser.parse_args(argv)
         self.__database = args.input or self.__database
+        self.__forceUpdate = args.forceupdate
+        
         self.main()
         
         
