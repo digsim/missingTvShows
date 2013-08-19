@@ -146,9 +146,11 @@ class TVShows:
                 self.__log.debug('Present episodes '+str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
                 self.__log.debug('Missing episodes: '+str(missing_episodes)[1:-1])
-                unwatched_unfinished_shows.append('|{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row[0],  row[1], row[2],  number_of_episodes,  str(missing_episodes)[1:-1]))
+                #unwatched_unfinished_shows.append('|{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row[0],  row[1], row[2],  number_of_episodes,  str(missing_episodes)[1:-1]))
+                unwatched_unfinished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes, 'NbWatched':0,   'MissingEpisodes':str(missing_episodes)[1:-1]})
             else:
-                unwatched_finished_shows.append('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( row[0],  row[1],  row[2],  number_of_episodes))
+                #unwatched_finished_shows.append('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( row[0],  row[1],  row[2],  number_of_episodes))
+                unwatched_finished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes, 'NbWatched':0,  'MissingEpisodes':0})
                 
 
         
@@ -168,9 +170,11 @@ class TVShows:
                 self.__log.debug('Present episodes: '+str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
                 self.__log.debug('Missing episodes: '+str(missing_episodes)[1:-1])
-                watchedsome_unfinished_shows.append('|{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row[0], row[3], row[1], row[2],  number_of_episodes,  str(missing_episodes)[1:-1]))
+                #watchedsome_unfinished_shows.append('|{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row[0], row[3], row[1], row[2],  number_of_episodes,  str(missing_episodes)[1:-1]))
+                watchedsome_unfinished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes, 'NbWatched':row[5],  'MissingEpisodes':str(missing_episodes)[1:-1]})
             elif int(number_of_episodes) > row[5]:
-                watchedsome_finished_shows.append('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format( row[0],  row[1],  row[5],  number_of_episodes))
+                #watchedsome_finished_shows.append('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format( row[0],  row[1],  row[5],  number_of_episodes))
+                watchedsome_finished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes,  'NbWatched':row[5], 'MissingEpisodes':0})
         con.close()
         return unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows
         
@@ -186,7 +190,7 @@ class TVShows:
         print('|{:44s} | {:s} ({:s}/{:s})| {:74s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------')
         for row in unwatched_unfinished_shows:
-            print row
+            print('|{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'],  row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------')
             
         print('###############################################################')
@@ -197,20 +201,20 @@ class TVShows:
         print('|{:35s}({:8s})  | {:s} ({:s}/{:s})| {:74s}|'.format('Title', 'SeasonId', 'Season', 'Downloaded',  'Available',  'Missing'))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------')
         for row in watchedsome_unfinished_shows:
-            print row
+            print('|{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'],   row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------')
         
         print('###############################################################')
         print('######################## Ready to Watch #######################')
         print('###############################################################')
-        for finished in unwatched_finished_shows:
-            print(finished)
+        for row in unwatched_finished_shows:
+            print('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( row['Title'],  row['Season'],  row['NbDownloaded'], row['NbAvailable']))
             
         print('###############################################################')
         print('#################### Complete and Watching ####################')
         print('###############################################################')
-        for finished in watchedsome_finished_shows:
-            print(finished)
+        for row in watchedsome_finished_shows:
+            print('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format(  row['Title'],  row['Season'],  row['NbWatched'], row['NbDownloaded']))
         
     def getArguments(self, argv):
         parser = argparse.ArgumentParser(prog='missing_tvshows',  description='Parsing the local XBMC library for TV-Shows and discovers if new episodes are availalbe',  epilog='And that is how you use me')
