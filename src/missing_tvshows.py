@@ -68,7 +68,7 @@ class TVShows:
     def make_sql_queries(self):
         con = sqlite3.connect(self.__database)
         cur = con.cursor()
-         # Select TV-Shows where no episode has been watched
+        # Select TV-Shows where no episode has been watched
         cur.execute('select * from (select tvshow.c00 as Title, episodeview.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episodeview.idSeason as SeasoniD, max(episodeview.playCount) as Played from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episodeview.c12 order by tvshow.c00) where Played is NULL;')
         nonewatched = cur.fetchall()
         
@@ -112,7 +112,15 @@ class TVShows:
             cur = con.cursor()
             cur.execute('''CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)''')
             con.commit()
-            con.close()
+        con.close()
+        
+    def checkXBMCDatabase(self):
+        try:
+            with open(self.__database):
+                pass
+        except IOError:
+            self.__log.error('XBMC Database not found - Aborting')
+            sys.exit(-404)
    
         
     def getSeriesInformation(self):
@@ -223,7 +231,7 @@ class TVShows:
         args = parser.parse_args(argv)
         self.__database = args.input or self.__database
         self.__forceUpdate = args.forceupdate
-        
+        self.checkXBMCDatabase()
         self.main()
         
         
