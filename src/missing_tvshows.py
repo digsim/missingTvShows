@@ -1,35 +1,33 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-##############################################################################################################
-# This script is a simple management system for series made of exercises and solution.                                                                                                                                                    #
-# It is possible to make zipped series for moodle, a zip containing all series. Furthermore one can                                                                                                                                   #
-# generate previews for one exercise/solution. Two handy functions are the make-workbook and the                                                                                                                               #
-# make-catalogue. The former one creaets a pdf containig all series, each one followed by its solution                                                                                                                             #
-# just like they were distributed. The latter one create a sort of index of all available exercises in                                                                                                                                    #
-# the system. Each exercise is followed by its solution.                                                                                                                                                                                                        #
-#                                                                                                                                                                                                                                                                                             #
-# The structure for a new exercise should be created by using the make-new-exercise function.                                                                                                                                       #
-# For further help, please refer to the help function of the software.                                                                                                                                                                                   #
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-#                                                                                                                                                                                                                                                                                             #
-# Author: Andreas Ruppen                                                                                                                                                                                                                                                    #
-# License: GPL                                                                                                                                                                                                                                                                       #
-# This program is free software; you can redistribute it and/or modify                                                                                                                                                                                 #
-#   it under the terms of the GNU General Public License as published by                                                                                                                                                                            #
-#   the Free Software Foundation; either version 2 of the License, or                                                                                                                                                                                    #
-#   (at your option) any later version.                                                                                                                                                                                                                                      #
-#                                                                                                                                                                                                                                                                                               #
-#   This program is distributed in the hope that it will be useful,                                                                                                                                                                                            #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                                                                            #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                                                                                                                     #
-#   GNU General Public License for more details.                                                                                                                                                                                                                   #
-#                                                                                                                                                                                                                                                                                                #
-#   You should have received a copy of the GNU General Public License                                                                                                                                                                                 #
-#   along with this program; if not, write to the                                                                                                                                                                                                                         #
-#   Free Software Foundation, Inc.,                                                                                                                                                                                                                                           #
-#   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.                                                                                                                                                                                              #
-################################################################################################################
+#########################################################################
+# Simple script which is parsing all TV-Shows in the local XBMC MyVideos75.db                                                              #
+# For each TV-Show and for each Season TheTVDB is asked to know how many Episodes exists in this Season.              #
+# The returned value from TheTVDB is then compared to the locally availalbe Episodes.                                                  #
+# Finally 4 lists are printed:                                                                                                                                                  #
+#       Seasons where no Episode is watched and which is not yet complete                                                                        #
+#       Seasons where some Episodes are watched but the Season is not yet complete                                                        #
+#       Seasons where no Episode is watched and all Episodes are locally available                                                             #
+#       Seasons where some Episodes are watched and all Episodes are locally availalbe                                                    #
+# For the Seasons having missing Episodes, the script prints an array containing the Episodes numbers                         #
+# of the missing Episodes.                                                                                                                                                     #
+# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+#                                                                                                                                                                                             #
+# Author: Andreas Ruppen                                                                                                                                                     #
+# Copyright 2013 Andreas Ruppen                                                                                                                                        #
+# Licensed under the Apache License, Version 2.0 (the "License");                                                                                      #
+#   you may not use this file except in compliance with the License.                                                                                    #
+#   You may obtain a copy of the License at                                                                                                                           #
+#                                                                                                                                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                                                                                                               #
+#                                                                                                                                                                                              #
+#   Unless required by applicable law or agreed to in writing, software                                                                                #
+#   distributed under the License is distributed on an "AS IS" BASIS,                                                                                   #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.                                                   #
+#   See the License for the specific language governing permissions and                                                                             #   
+#   limitations under the License.                                                                                                                                            #
+###########################################################################
 
 import sqlite3
 import sys, os, getopt, shutil
