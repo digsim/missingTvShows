@@ -40,6 +40,7 @@ else:
 import argparse
 import time
 from pytvdbapi import api
+import math
 
 class TVShows:
     def __init__(self):
@@ -58,6 +59,8 @@ class TVShows:
         self.__cwd = os.getcwd()
         self.__log.debug('Database '+self.__database)
         self.__forceUpdate = False
+        self.__totalOfSeriesSeason = 0
+        self.__alreadyCheckedSeriesSeason = 0
         
         self.checkLocalTVDBDatabase()
         
@@ -73,6 +76,7 @@ class TVShows:
         # Select TV-Shows where at least one Episode was played
         cur.execute('select * from (select tvshow.c00 as Title, episodeview.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episodeview.idSeason as SeasoniD, sum(episodeview.playCount) as Played from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episodeview.c12 order by tvshow.c00) where Played is not NULL;')
         somewatched = cur.fetchall()
+        self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
         con.close()
         
         return nonewatched,  somewatched
@@ -84,6 +88,12 @@ class TVShows:
         localshow = cur.fetchone()
         number_of_episodes = 0
         now = time.mktime(time.gmtime())
+        self.__alreadyCheckedSeriesSeason = self.__alreadyCheckedSeriesSeason+1
+        progress = self.__alreadyCheckedSeriesSeason*100/self.__totalOfSeriesSeason
+        sys.stdout.write('\r')
+        sys.stdout.write("[%-100s] %d%%" % ('='*int(math.ceil(progress)), progress ))
+        sys.stdout.flush()
+        self.__log.debug("Already done {:d} of {:d}".format(self.__alreadyCheckedSeriesSeason,  self.__totalOfSeriesSeason))
         if not localshow or self.__forceUpdate:
             show = self.__db.get(series_id, "en" )
             number_of_episodes = len(show[season])
@@ -98,7 +108,7 @@ class TVShows:
             con.commit()
         else:
             number_of_episodes = localshow[3]
-        
+            
         con.close()
         return number_of_episodes
         
@@ -183,7 +193,9 @@ class TVShows:
         
             
     def main(self):
+        print('Acquiring necessary TV-Shows information')
         unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
+        sys.stdout.write('\n')
         print('##############################################################')
         print('###################### Unwatched Missing #####################')
         print('##############################################################')
