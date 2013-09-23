@@ -146,14 +146,18 @@ class TVShows:
         for row in nonewatched:
             if(int(row[1]) == 0): # Don't take into consideration Season 0
                 continue
-            self.__log.debug('Currently treating series {:s} with id: {:s} and Season {:s}'.format(row[0],  row[3],  row[1]))
-            number_of_episodes = self.getTotalNumberOfEpisodes(int(row[3]),  int(row[1]))
+            rowTitle = row[0].encode('utf-8')
+            rowId = row[3]
+            rowSeason = row[1]
+            rowDownloaded = row[2]
+            self.__log.debug('Currently treating series {:s} with id: {:s} and Season {:s}'.format(rowTitle,  rowId,  rowSeason))
+            number_of_episodes = self.getTotalNumberOfEpisodes(int(rowId),  int(rowSeason))
             full_episodes = range(1, number_of_episodes+1)
-            self.__log.debug('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( row[0],  row[1],  row[2],  number_of_episodes))
+            self.__log.debug('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( rowTitle,  rowSeason,  rowDownloaded,  number_of_episodes))
             
-            if(int(number_of_episodes) != int(row[2])): # If number of local Episodes is different from TheTVDB
+            if(int(number_of_episodes) != int(rowDownloaded)): # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                cur.execute('select tvshow.c00 as Title, episodeview.c12 as Season, episodeview.c13 as Episode, tvshow.c12 as SeriesiD  from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episodeview.c12, episodeview.c13;'.format(row[1],  row[3]))
+                cur.execute('select tvshow.c00 as Title, episodeview.c12 as Season, episodeview.c13 as Episode, tvshow.c12 as SeriesiD  from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episodeview.c12, episodeview.c13;'.format(rowSeason,  rowId))
                 episodes = cur.fetchall()
                 present_episodes = []
                 for episode in episodes:
@@ -162,20 +166,25 @@ class TVShows:
                 self.__log.debug('Present episodes '+str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
                 self.__log.debug('Missing episodes: '+str(missing_episodes)[1:-1])
-                unwatched_unfinished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes, 'NbWatched':0,   'MissingEpisodes':str(missing_episodes)[1:-1]})
+                unwatched_unfinished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':0,   'MissingEpisodes':str(missing_episodes)[1:-1]})
             else:
-                unwatched_finished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes, 'NbWatched':0,  'MissingEpisodes':0})
+                unwatched_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':0,  'MissingEpisodes':0})
                 
 
         
         for row in somewatched:
             if(int(row[1]) == 0): # Don't take into consideration Season 0
                 continue
-            self.__log.debug('Currently treating series {:s} with id: {:s} and Season {:s}'.format(row[0],  row[3],  row[1]))
-            number_of_episodes = self.getTotalNumberOfEpisodes(int(row[3]),  int(row[1]))
+            rowTitle = row[0].encode('utf-8')
+            rowId = row[3]
+            rowSeason = row[1]
+            rowDownloaded = row[2]
+            rowWatched = row[5]
+            self.__log.debug('Currently treating series {:s} with id: {:s} and Season {:s}'.format(rowTitle,  rowId,  rowSeason))
+            number_of_episodes = self.getTotalNumberOfEpisodes(int(rowId),  int(rowSeason))
             full_episodes = range(1, number_of_episodes+1)
-            if(int(number_of_episodes) != int(row[2])): # If number of local Episodes is different from TheTVDB
-                cur.execute('select tvshow.c00 as Title, episodeview.c12 as Season, episodeview.c13 as Episode, tvshow.c12 as SeriesiD  from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episodeview.c12, episodeview.c13;'.format(row[1],  row[3]))
+            if(int(number_of_episodes) != int(rowDownloaded)): # If number of local Episodes is different from TheTVDB
+                cur.execute('select tvshow.c00 as Title, episodeview.c12 as Season, episodeview.c13 as Episode, tvshow.c12 as SeriesiD  from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episodeview.c12, episodeview.c13;'.format(rowSeason,  rowId))
                 episodes = cur.fetchall()
                 present_episodes = []
                 for episode in episodes:
@@ -184,9 +193,9 @@ class TVShows:
                 self.__log.debug('Present episodes: '+str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
                 self.__log.debug('Missing episodes: '+str(missing_episodes)[1:-1])
-                watchedsome_unfinished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes, 'NbWatched':row[5],  'MissingEpisodes':str(missing_episodes)[1:-1]})
-            elif int(number_of_episodes) > row[5]:
-                watchedsome_finished_shows.append({'Title':row[0],  'SeasonId':row[3],  'Season':row[1],  'NbDownloaded':row[2],  'NbAvailable':number_of_episodes,  'NbWatched':row[5], 'MissingEpisodes':0})
+                watchedsome_unfinished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':rowWatched,  'MissingEpisodes':str(missing_episodes)[1:-1]})
+            elif int(number_of_episodes) > rowWatched:
+                watchedsome_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes,  'NbWatched':rowWatched, 'MissingEpisodes':0})
         con.close()
         return unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows
         
