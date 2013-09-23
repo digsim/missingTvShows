@@ -94,13 +94,15 @@ class TVShows:
         sys.stdout.write("[%-100s] %d%%" % ('='*int(math.ceil(progress)), progress ))
         sys.stdout.flush()
         self.__log.debug("Already done {:d} of {:d}".format(self.__alreadyCheckedSeriesSeason,  self.__totalOfSeriesSeason))
-        if not localshow or self.__forceUpdate:
+        if not localshow and not self.__forceLocal:
             show = self.__db.get(series_id, "en" )
             number_of_episodes = len(show[season])
             cur = con.cursor()
             cur.execute('''INSERT INTO THETVDB VALUES (NULL, {:d}, {:d}, {:d}, {:f})'''.format(series_id,  season,  number_of_episodes,  now ))
             con.commit()
-        elif self.__forceUpdate or (now-localshow[4] > 604800):
+        elif not localshow and self.__forceLocal:
+            number_of_episodes = -1
+        elif self.__forceUpdate or ((now-localshow[4] > 604800) and not self.__forceLocal):
             show = self.__db.get(series_id, "en" )
             number_of_episodes = len(show[season])
             cur = con.cursor()
@@ -243,9 +245,13 @@ class TVShows:
         parser = argparse.ArgumentParser(prog='missing_tvshows',  description='Parsing the local XBMC library for TV-Shows and discovers if new episodes are availalbe',  epilog='And that is how you use me')
         parser.add_argument("-i",  "--input",  help="input sqlite database file",  required=False,  metavar='DATABASE')
         parser.add_argument("-f",  "--force-update",  help="Force the update of the local TVDB Database",  required=False,  action="store_true",  dest='forceupdate')
+        parser.add_argument("-o",  "--offline",  help="Force Offline mode, even if the script thinks that some entries needs to be refreshed",  required=False,  action="store_true",  dest='forcelocal')
         args = parser.parse_args(argv)
         self.__database = args.input or self.__database
         self.__forceUpdate = args.forceupdate
+        self.__forceLocal = args.forcelocal
+        if self.__forceLocal:
+            self.__forceUpdate = False
         self.checkXBMCDatabase()
         self.main()
         
