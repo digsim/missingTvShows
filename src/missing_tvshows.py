@@ -41,6 +41,7 @@ import argparse
 import time
 from pytvdbapi import api
 import math
+import random
 
 class TVShows:
     def __init__(self):
@@ -61,6 +62,7 @@ class TVShows:
         self.__forceUpdate = False
         self.__totalOfSeriesSeason = 0
         self.__alreadyCheckedSeriesSeason = 0
+        self.__random = random.SystemRandom(time.localtime())
         
         self.checkLocalTVDBDatabase()
         
@@ -87,7 +89,7 @@ class TVShows:
         cur.execute("Select * from THETVDB where seriesid = {:d} and season = {:d};".format(series_id,  season))
         localshow = cur.fetchone()
         number_of_episodes = 0
-        now = time.mktime(time.gmtime())
+        now = time.mktime(time.localtime())
         self.__alreadyCheckedSeriesSeason = self.__alreadyCheckedSeriesSeason+1
         progress = self.__alreadyCheckedSeriesSeason*100/self.__totalOfSeriesSeason
         sys.stdout.write('\r')
@@ -97,8 +99,10 @@ class TVShows:
         if not localshow and not self.__forceLocal:
             show = self.__db.get(series_id, "en" )
             number_of_episodes = len(show[season])
+            next_update_time = now + self.__random.randint(0,  302400)
+            self.__log.debug('Next update time is: '+next_update_time)
             cur = con.cursor()
-            cur.execute('''INSERT INTO THETVDB VALUES (NULL, {:d}, {:d}, {:d}, {:f})'''.format(series_id,  season,  number_of_episodes,  now ))
+            cur.execute('''INSERT INTO THETVDB VALUES (NULL, {:d}, {:d}, {:d}, {:f})'''.format(series_id,  season,  number_of_episodes,  nex_update_time ))
             con.commit()
         elif not localshow and self.__forceLocal:
             number_of_episodes = -1
@@ -106,7 +110,9 @@ class TVShows:
             show = self.__db.get(series_id, "en" )
             number_of_episodes = len(show[season])
             cur = con.cursor()
-            cur.execute('''UPDATE THETVDB SET totalnumofepisodes={:d},  lastupdated={:f} where id = {:d}'''.format(number_of_episodes,  now,  localshow[0]))
+            next_update_time = now + self.__random.randint(0,  302400)
+            self.__log.debug('Next update time is: '+next_update_time)
+            cur.execute('''UPDATE THETVDB SET totalnumofepisodes={:d},  lastupdated={:f} where id = {:d}'''.format(number_of_episodes,  next_update_time,  localshow[0]))
             con.commit()
         else:
             number_of_episodes = localshow[3]
