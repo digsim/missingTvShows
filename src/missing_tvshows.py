@@ -102,9 +102,9 @@ class TVShows:
             show = self.__db.get(series_id, "en" )
             number_of_episodes = len(show[season])
             next_update_time = now + self.__random.randint(0,  302400)
-            self.__log.debug('Next update time is: '+next_update_time)
+            self.__log.debug('Next update time is: '+str(next_update_time))
             cur = con.cursor()
-            cur.execute('''INSERT INTO THETVDB VALUES (NULL, {:d}, {:d}, {:d}, {:f})'''.format(series_id,  season,  number_of_episodes,  nex_update_time ))
+            cur.execute('''INSERT INTO THETVDB VALUES (NULL, {:d}, {:d}, {:d}, {:f})'''.format(series_id,  season,  number_of_episodes,  next_update_time ))
             con.commit()
         elif not localshow and self.__forceLocal:
             number_of_episodes = -1
@@ -113,7 +113,7 @@ class TVShows:
             number_of_episodes = len(show[season])
             cur = con.cursor()
             next_update_time = now + self.__random.randint(0,  302400)
-            self.__log.debug('Next update time is: '+next_update_time)
+            self.__log.debug('Next update time is: '+str(next_update_time))
             cur.execute('''UPDATE THETVDB SET totalnumofepisodes={:d},  lastupdated={:f} where id = {:d}'''.format(number_of_episodes,  next_update_time,  localshow[0]))
             con.commit()
         else:
