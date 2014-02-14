@@ -56,7 +56,7 @@ class TVShows:
         # Configure several elements depending on config file
         config = ConfigParser.SafeConfigParser()
         config.read("tvshows.cfg")
-        self.__db = api.TVDB(config.get("Config", "api_key"))
+        #self.__db = api.TVDB(config.get("Config", "api_key"))
         self.__database = config.get("Config", "db")
         self.__tvdbdatabse = config.get("Config", "tvdbdb")
         self.__cwd = os.getcwd()
@@ -143,6 +143,8 @@ class TVShows:
         
     def getSeriesInformation(self):
         """The main function"""
+        if not self.__forceLocal:
+            self.__db = api.TVDB(config.get("Config", "api_key"))
         nonewatched,  somewatched = self.make_sql_queries()
         con = sqlite3.connect(self.__database)
         cur = con.cursor()
