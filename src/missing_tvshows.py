@@ -65,7 +65,8 @@ class TVShows:
         self.__totalOfSeriesSeason = 0
         self.__alreadyCheckedSeriesSeason = 0
         self.__random = random.SystemRandom(time.localtime())
-        
+        self.__api_key = config.get("Config", "api_key")
+
         self.checkLocalTVDBDatabase()
         
                             
@@ -144,7 +145,7 @@ class TVShows:
     def getSeriesInformation(self):
         """The main function"""
         if not self.__forceLocal:
-            self.__db = api.TVDB(config.get("Config", "api_key"))
+            self.__db = api.TVDB(self.__api_key)
         nonewatched,  somewatched = self.make_sql_queries()
         con = sqlite3.connect(self.__database)
         cur = con.cursor()
