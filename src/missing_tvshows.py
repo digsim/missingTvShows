@@ -223,7 +223,7 @@ class TVShows:
         print('##############################################################')
         
         print('-------------------------------------------------------------------------------------------------------------------------------------------------')
-        print('|{:44s} | {:s} ({:s}/{:s})| {:74s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
+        print('|{:44s} | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------')
         for row in unwatched_unfinished_shows:
             print('|{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
@@ -234,7 +234,7 @@ class TVShows:
         print('###############################################################')
         
         print('-------------------------------------------------------------------------------------------------------------------------------------------------')
-        print('|{:35s}({:8s})  | {:s} ({:s}/{:s})| {:74s}|'.format('Title', 'SeasonId', 'Season', 'Downloaded',  'Available',  'Missing'))
+        print('|{:35s}({:8s})  | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'SeasonId', 'Season', 'Downloaded',  'Available',  'Missing'))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------')
         for row in watchedsome_unfinished_shows:
             print('|{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
