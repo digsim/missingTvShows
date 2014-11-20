@@ -100,7 +100,7 @@ class TVShows:
         sys.stdout.flush()
         self.__log.debug("Already done {:d} of {:d}".format(self.__alreadyCheckedSeriesSeason,  self.__totalOfSeriesSeason))
         if not localshow and not self.__forceLocal:
-            show = self.__db.get(series_id, "en" )
+            show = self.__db.get_series(series_id, "en" )
             number_of_episodes = len(show[season])
             next_update_time = now + self.__random.randint(0,  302400)
             self.__log.debug('Next update time is: '+str(next_update_time))
@@ -110,7 +110,7 @@ class TVShows:
         elif not localshow and self.__forceLocal:
             number_of_episodes = -1
         elif self.__forceUpdate or ((now-localshow[4] > 604800) and not self.__forceLocal):
-            show = self.__db.get(series_id, "en" )
+            show = self.__db.get_series(series_id, "en" )
             number_of_episodes = len(show[season])
             cur = con.cursor()
             next_update_time = now + self.__random.randint(0,  302400)
