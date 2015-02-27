@@ -73,8 +73,7 @@ class TVShows:
 
         self.checkLocalTVDBDatabase()
         
-                            
-                            
+
     def make_sql_queries(self):
         con = sqlite3.connect(self.__database)
         cur = con.cursor()
@@ -89,7 +88,8 @@ class TVShows:
         con.close()
         
         return nonewatched,  somewatched
-        
+
+
     def getTotalNumberOfEpisodes(self,  series_id,  season):
         con = sqlite3.connect(self.__tvdbdatabse)
         cur = con.cursor()
@@ -126,7 +126,8 @@ class TVShows:
             
         con.close()
         return number_of_episodes
-        
+
+
     def checkLocalTVDBDatabase(self):
         con = sqlite3.connect(self.__tvdbdatabse)
         cur = con.cursor()
@@ -136,7 +137,8 @@ class TVShows:
             cur.execute('''CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)''')
             con.commit()
         con.close()
-        
+
+
     def checkXBMCDatabase(self):
         try:
             with open(self.__database):
@@ -186,9 +188,7 @@ class TVShows:
                 unwatched_unfinished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':0,   'MissingEpisodes':str(missing_episodes)[1:-1]})
             else:
                 unwatched_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':0,  'MissingEpisodes':0})
-                
 
-        
         for row in somewatched:
             if(int(row[1]) == 0): # Don't take into consideration Season 0
                 continue
@@ -215,6 +215,7 @@ class TVShows:
                 watchedsome_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes,  'NbWatched':rowWatched, 'MissingEpisodes':0})
         con.close()
         return unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows
+
 
     def _print_konsole(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
         sys.stdout.write('\n')
@@ -251,12 +252,15 @@ class TVShows:
         for row in watchedsome_finished_shows:
             print('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format(  row['Title'], row['Season'], row['NbWatched'], row['NbDownloaded']))
 
+
     def _save_CSV(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
         self._write_CSV(watchedsome_finished_shows, 'watchedsome_finished_shows.csv')
         self._write_CSV(unwatched_unfinished_shows, 'unwatched_unfinished_shows.csv')
         self._write_CSV(watchedsome_unfinished_shows, 'watchedsome_unfinished_shows.csv')
 
+
     def _write_CSV(self, series, filename):
+        self.__log.debug("Writing to "+filename)
         if sys.version_info >= (3,0,0):
             f = open(filename, 'w', newline='')
         else:
@@ -266,15 +270,17 @@ class TVShows:
             writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
 
             for show in series:
-                writer.writerow([show['SeasonId'], show['Title'], show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
+                writer.writerow([show['SeasonId'], show['Title'].encode("utf-8"), show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
             f.close()
+
 
     def main(self):
         print('Acquiring necessary TV-Shows information')
         unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
         self._print_konsole(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
         self._save_CSV(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
-        
+
+
     def getArguments(self, argv):
         parser = argparse.ArgumentParser(prog='missing_tvshows',  description='Parsing the local XBMC library for TV-Shows and discovers if new episodes are availalbe',  epilog='And that is how you use me')
         parser.add_argument("-i",  "--input",  help="input sqlite database file",  required=False,  metavar='DATABASE')
@@ -289,6 +295,7 @@ class TVShows:
         self.checkXBMCDatabase()
         self.main()
         sys.exit(0)
+
 
 def exit_gracefully(signum, frame):
     # restore the original signal handler as otherwise evil things will happen
