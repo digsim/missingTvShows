@@ -65,6 +65,7 @@ class TVShows:
         self.__cwd = os.getcwd()
         self.__log.debug('Database '+self.__database)
         self.__forceUpdate = False
+        self.__forceLocal = False
         self.__totalOfSeriesSeason = 0
         self.__alreadyCheckedSeriesSeason = 0
         self.__random = random.SystemRandom(time.localtime())
@@ -251,53 +252,28 @@ class TVShows:
             print('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format(  row['Title'], row['Season'], row['NbWatched'], row['NbDownloaded']))
 
     def _save_CSV(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
+        self._write_CSV(watchedsome_finished_shows, 'watchedsome_finished_shows.csv')
+        self._write_CSV(unwatched_unfinished_shows, 'unwatched_unfinished_shows.csv')
+        self._write_CSV(watchedsome_unfinished_shows, 'watchedsome_unfinished_shows.csv')
+
+    def _write_CSV(self, series, filename):
         if sys.version_info >= (3,0,0):
-            f = open('watched_some_finished.csv', 'w', newline='')
+            f = open(filename, 'w', newline='')
         else:
-            f = open('watched_some_finished.csv', 'wb')
+            f = open(filename, 'wb')
         with f:
             writer = csv.writer(f)
             writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
 
-            for show in watchedsome_finished_shows:
+            for show in series:
                 writer.writerow([show['SeasonId'], show['Title'], show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
             f.close()
-
-        if sys.version_info >= (3,0,0):
-            f = open('unwatched_unfinished_shows.csv', 'w', newline='')
-        else:
-            f = open('unwatched_unfinished_shows.csv', 'wb')
-        with f:
-            writer = csv.writer(f)
-            writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
-
-            for show in unwatched_unfinished_shows:
-                writer.writerow([show['SeasonId'], show['Title'], show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
-            f.close()
-
-        if sys.version_info >= (3,0,0):
-            f = open('watchedsome_unfinished_shows.csv', 'w', newline='')
-        else:
-            f = open('watchedsome_unfinished_shows.csv', 'wb')
-        with f:
-            writer = csv.writer(f)
-            writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
-
-            for show in watchedsome_unfinished_shows:
-                writer.writerow([show['SeasonId'], show['Title'], show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
-            f.close()
-
-
-
-
-
 
     def main(self):
         print('Acquiring necessary TV-Shows information')
         unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
         self._print_konsole(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
         self._save_CSV(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
-            
         
     def getArguments(self, argv):
         parser = argparse.ArgumentParser(prog='missing_tvshows',  description='Parsing the local XBMC library for TV-Shows and discovers if new episodes are availalbe',  epilog='And that is how you use me')
@@ -313,7 +289,6 @@ class TVShows:
         self.checkXBMCDatabase()
         self.main()
         sys.exit(0)
-        
 
 def exit_gracefully(signum, frame):
     # restore the original signal handler as otherwise evil things will happen
