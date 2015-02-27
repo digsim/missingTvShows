@@ -4,3 +4,4 @@ src/tvshows.log
 src/tvdbdb.db
 .AppleDouble
 .idea
+*.csv
