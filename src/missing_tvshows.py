@@ -60,16 +60,19 @@ class TVShows:
         config = ConfigParser.SafeConfigParser()
         config.read("tvshows.cfg")
         #self.__db = api.TVDB(config.get("Config", "api_key"))
-        self.__database = config.get("Config", "db")
         self.__tvdbdatabse = config.get("Config", "tvdbdb")
         self.__cwd = os.getcwd()
-        self.__log.debug('Database '+self.__database)
         self.__forceUpdate = False
         self.__forceLocal = False
         self.__totalOfSeriesSeason = 0
         self.__alreadyCheckedSeriesSeason = 0
         self.__random = random.SystemRandom(time.localtime())
         self.__api_key = config.get("Config", "api_key")
+        self.__dbdialtect = config.get("Database", "dbdialect")
+        self.__database = config.get("Database", "db")
+        self.__dbuser =  config.get("Database", "dbuser")
+        self.__dbpasswd =  config.get("Database", "dbpasswd")
+        self.__log.debug('Database '+self.__database)
 
         self.checkLocalTVDBDatabase()
         
