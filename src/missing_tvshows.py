@@ -43,6 +43,8 @@ import time
 from pytvdbapi import api
 import math
 import random
+from colorama import Fore, Back, Style
+import signal
 
 
 class TVShows:
@@ -218,37 +220,36 @@ class TVShows:
         print('Acquiring necessary TV-Shows information')
         unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
         sys.stdout.write('\n')
-        print('##############################################################')
+        print(Fore.RED + '##############################################################')
         print('###################### Unwatched Missing #####################')
-        print('##############################################################')
+        print('##############################################################'+ Style.RESET_ALL)
         
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------')
-        print('|{:44s} | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------')
+        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
+        print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:44s} | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
+        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
         for row in unwatched_unfinished_shows:
-            print('|{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------')
+            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
+            print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
             
-        print('###############################################################')
+        print(Fore.RED + '###############################################################')
         print('######################## Watched Missing ######################')
-        print('###############################################################')
-        
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------')
-        print('|{:35s}({:8s})  | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'SeasonId', 'Season', 'Downloaded',  'Available',  'Missing'))
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------')
+        print('###############################################################'+ Style.RESET_ALL)
+        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
+        print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s})  | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'SeasonId', 'Season', 'Downloaded',  'Available',  'Missing'))
+        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
         for row in watchedsome_unfinished_shows:
-            print('|{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------')
+            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
+            print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
         
-        print('###############################################################')
+        print(Fore.RED + '###############################################################')
         print('######################## Ready to Watch #######################')
-        print('###############################################################')
+        print('###############################################################'+ Style.RESET_ALL)
         for row in unwatched_finished_shows:
             print('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( row['Title'], row['Season'], row['NbDownloaded'], row['NbAvailable']))
             
-        print('###############################################################')
+        print(Fore.RED +  '###############################################################')
         print('#################### Complete and Watching ####################')
-        print('###############################################################')
+        print('###############################################################'+ Style.RESET_ALL)
         for row in watchedsome_finished_shows:
             print('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format(  row['Title'], row['Season'], row['NbWatched'], row['NbDownloaded']))
             
@@ -266,8 +267,27 @@ class TVShows:
             self.__forceUpdate = False
         self.checkXBMCDatabase()
         self.main()
+        sys.exit(0)
         
-        
+
+def exit_gracefully(signum, frame):
+    # restore the original signal handler as otherwise evil things will happen
+    # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
+    signal.signal(signal.SIGINT, original_sigint)
+    real_raw_input = vars(__builtins__).get('raw_input',input)
+
+    try:
+        if real_raw_input('\nReally quit? (y/n)> ').lower().startswith('y'):
+            sys.exit(1)
+    except KeyboardInterrupt:
+        print("Ok ok, quitting")
+        sys.exit(1)
+
+    # restore the exit gracefully handler here
+    signal.signal(signal.SIGINT, exit_gracefully)
+
 if __name__ == "__main__":
+    original_sigint = signal.getsignal(signal.SIGINT)
+    signal.signal(signal.SIGINT, exit_gracefully)
     sms = TVShows()
     sms.getArguments(sys.argv[1:])
