@@ -25,7 +25,7 @@
 #   Unless required by applicable law or agreed to in writing, software                                                                                #
 #   distributed under the License is distributed on an "AS IS" BASIS,                                                                                   #
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.                                                   #
-#   See the License for the specific language governing permissions and                                                                             #   
+#   See the License for the specific language governing permissions and                                                                             #
 #   limitations under the License.                                                                                                                                            #
 ###########################################################################
 
@@ -54,8 +54,8 @@ class TVShows:
         logging.basicConfig(level=logging.ERROR)
         logging.config.fileConfig('logging.conf')
         self.__log = logging.getLogger('TVShows')
-        
-        
+
+
         # Configure several elements depending on config file
         config = ConfigParser.SafeConfigParser()
         config.read("tvshows.cfg")
@@ -75,7 +75,7 @@ class TVShows:
         self.__log.debug('Database '+self.__database)
 
         self.checkLocalTVDBDatabase()
-        
+
 
     def make_sql_queries(self):
         con = sqlite3.connect(self.__database)
@@ -83,13 +83,13 @@ class TVShows:
         # Select TV-Shows where no episode has been watched
         cur.execute('select * from (select tvshow.c00 as Title, episode_view.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episode_view.idSeason as SeasoniD, max(episode_view.playCount) as Played from episode_view join seasons on seasons.idSeason = episode_view.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episode_view.c12 order by tvshow.c00) where Played is NULL;')
         nonewatched = cur.fetchall()
-        
+
         # Select TV-Shows where at least one Episode was played
         cur.execute('select * from (select tvshow.c00 as Title, episode_view.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episode_view.idSeason as SeasoniD, sum(episode_view.playCount) as Played from episode_view join seasons on seasons.idSeason = episode_view.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episode_view.c12 order by tvshow.c00) where Played is not NULL;')
         somewatched = cur.fetchall()
         self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
         con.close()
-        
+
         return nonewatched,  somewatched
 
 
@@ -100,7 +100,7 @@ class TVShows:
         localshow = cur.fetchone()
         number_of_episodes = 0
         now = time.mktime(time.localtime())
-        self.__alreadyCheckedSeriesSeason = self.__alreadyCheckedSeriesSeason+1
+        self.__alreadyCheckedSeriesSeason += 1
         progress = self.__alreadyCheckedSeriesSeason*100/self.__totalOfSeriesSeason
         sys.stdout.write('\r')
         sys.stdout.write("[%-100s] %d%%" % ('='*int(math.ceil(progress)), progress ))
@@ -126,7 +126,7 @@ class TVShows:
             con.commit()
         else:
             number_of_episodes = localshow[3]
-            
+
         con.close()
         return number_of_episodes
 
@@ -149,8 +149,8 @@ class TVShows:
         except IOError:
             self.__log.error('XBMC Database not found - Aborting')
             sys.exit(-404)
-   
-        
+
+
     def getSeriesInformation(self):
         """The main function"""
         if not self.__forceLocal:
@@ -158,15 +158,15 @@ class TVShows:
         nonewatched,  somewatched = self.make_sql_queries()
         con = sqlite3.connect(self.__database)
         cur = con.cursor()
-        
+
         unwatched_finished_shows = []
         unwatched_unfinished_shows =  []
         watchedsome_unfinished_shows = []
         watchedsome_finished_shows = []
-        
+
 
         for row in nonewatched:
-            if(int(row[1]) == 0): # Don't take into consideration Season 0
+            if int(row[1]) == 0: # Don't take into consideration Season 0
                 continue
             rowTitle = row[0]#.encode('utf-8')
             rowId = row[3]
@@ -176,8 +176,8 @@ class TVShows:
             number_of_episodes = self.getTotalNumberOfEpisodes(int(rowId),  int(rowSeason))
             full_episodes = range(1, number_of_episodes+1)
             self.__log.debug('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( rowTitle,  rowSeason,  rowDownloaded,  number_of_episodes))
-            
-            if(int(number_of_episodes) != int(rowDownloaded)): # If number of local Episodes is different from TheTVDB
+
+            if int(number_of_episodes) != int(rowDownloaded): # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
                 cur.execute('select tvshow.c00 as Title, episode_view.c12 as Season, episode_view.c13 as Episode, tvshow.c12 as SeriesiD  from episode_view join seasons on seasons.idSeason = episode_view.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episode_view.c12, episode_view.c13;'.format(rowSeason,  rowId))
                 episodes = cur.fetchall()
@@ -193,7 +193,7 @@ class TVShows:
                 unwatched_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':0,  'MissingEpisodes':0})
 
         for row in somewatched:
-            if(int(row[1]) == 0): # Don't take into consideration Season 0
+            if int(row[1]) == 0: # Don't take into consideration Season 0
                 continue
             rowTitle = row[0]#.encode('utf-8')
             rowId = row[3]
@@ -225,14 +225,14 @@ class TVShows:
         print(Fore.RED + '##############################################################')
         print('###################### Unwatched Missing #####################')
         print('##############################################################'+ Style.RESET_ALL)
-        
+
         print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
         print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:44s} | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
         print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
         for row in unwatched_unfinished_shows:
             print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
             print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-            
+
         print(Fore.RED + '###############################################################')
         print('######################## Watched Missing ######################')
         print('###############################################################'+ Style.RESET_ALL)
@@ -242,13 +242,13 @@ class TVShows:
         for row in watchedsome_unfinished_shows:
             print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
             print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-        
+
         print(Fore.RED + '###############################################################')
         print('######################## Ready to Watch #######################')
         print('###############################################################'+ Style.RESET_ALL)
         for row in unwatched_finished_shows:
             print('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( row['Title'], row['Season'], row['NbDownloaded'], row['NbAvailable']))
-            
+
         print(Fore.RED +  '###############################################################')
         print('#################### Complete and Watching ####################')
         print('###############################################################'+ Style.RESET_ALL)
