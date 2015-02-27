@@ -30,21 +30,22 @@
 ###########################################################################
 
 from __future__ import unicode_literals
+from pytvdbapi import api
+from colorama import Fore, Back, Style
 import sqlite3
-import sys, os, getopt, shutil
+import sys, os
 import logging
 import logging.config
-if float(sys.version[:3])<3.0:
-    import ConfigParser
-else: 
-    import configparser as ConfigParser
 import argparse
 import time
-from pytvdbapi import api
 import math
 import random
-from colorama import Fore, Back, Style
 import signal
+import csv
+if float(sys.version[:3])<3.0:
+    import ConfigParser
+else:
+    import configparser as ConfigParser
 
 
 class TVShows:
@@ -213,12 +214,8 @@ class TVShows:
                 watchedsome_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes,  'NbWatched':rowWatched, 'MissingEpisodes':0})
         con.close()
         return unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows
-        
-        
-            
-    def main(self):
-        print('Acquiring necessary TV-Shows information')
-        unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
+
+    def _print_konsole(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
         sys.stdout.write('\n')
         print(Fore.RED + '##############################################################')
         print('###################### Unwatched Missing #####################')
@@ -252,6 +249,54 @@ class TVShows:
         print('###############################################################'+ Style.RESET_ALL)
         for row in watchedsome_finished_shows:
             print('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format(  row['Title'], row['Season'], row['NbWatched'], row['NbDownloaded']))
+
+    def _save_CSV(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
+        if sys.version_info >= (3,0,0):
+            f = open('watched_some_finished.csv', 'w', newline='')
+        else:
+            f = open('watched_some_finished.csv', 'wb')
+        with f:
+            writer = csv.writer(f)
+            writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
+
+            for show in watchedsome_finished_shows:
+                writer.writerow([show['SeasonId'], show['Title'], show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
+            f.close()
+
+        if sys.version_info >= (3,0,0):
+            f = open('unwatched_unfinished_shows.csv', 'w', newline='')
+        else:
+            f = open('unwatched_unfinished_shows.csv', 'wb')
+        with f:
+            writer = csv.writer(f)
+            writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
+
+            for show in unwatched_unfinished_shows:
+                writer.writerow([show['SeasonId'], show['Title'], show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
+            f.close()
+
+        if sys.version_info >= (3,0,0):
+            f = open('watchedsome_unfinished_shows.csv', 'w', newline='')
+        else:
+            f = open('watchedsome_unfinished_shows.csv', 'wb')
+        with f:
+            writer = csv.writer(f)
+            writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
+
+            for show in watchedsome_unfinished_shows:
+                writer.writerow([show['SeasonId'], show['Title'], show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
+            f.close()
+
+
+
+
+
+
+    def main(self):
+        print('Acquiring necessary TV-Shows information')
+        unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
+        self._print_konsole(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
+        self._save_CSV(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
             
         
     def getArguments(self, argv):
