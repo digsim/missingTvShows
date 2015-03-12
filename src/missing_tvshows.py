@@ -33,8 +33,11 @@ from __future__ import unicode_literals
 from pytvdbapi import api
 from colorama import Fore, Back, Style
 from sqlalchemy import create_engine, Table, MetaData, func
+from sqlalchemy import Table, MetaData, Column, Integer, String, ForeignKey, REAL
 from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import select
+from sqlalchemy.orm import mapper
 from sqlalchemy.orm import sessionmaker
 import sqlite3
 import sys, os
@@ -185,10 +188,13 @@ class TVShows:
 
 
     def getTotalNumberOfEpisodes(self,  series_id,  season):
-        con = sqlite3.connect(self.__tvdbdatabse)
-        cur = con.cursor()
-        cur.execute("Select * from THETVDB where seriesid = {:d} and season = {:d};".format(series_id,  season))
-        localshow = cur.fetchone()
+        engine = create_engine('sqlite:///' + self.__tvdbdatabse)
+        sessionma = sessionmaker(bind=engine)
+        session = sessionma()
+
+        query = session.query(TVShow).filter_by(seriesid=series_id).filter_by(season=season)
+        localshow = query.first()
+
         number_of_episodes = 0
         now = time.mktime(time.localtime())
         self.__alreadyCheckedSeriesSeason += 1
@@ -202,23 +208,23 @@ class TVShows:
             number_of_episodes = len(show[season])
             next_update_time = now + self.__random.randint(0,  302400)
             self.__log.debug('Next update time is: '+str(next_update_time))
-            cur = con.cursor()
-            cur.execute('''INSERT INTO THETVDB VALUES (NULL, {:d}, {:d}, {:d}, {:f})'''.format(series_id,  season,  number_of_episodes,  next_update_time ))
-            con.commit()
+            newlocalshow = TVShow(seriesid=series_id, season=season, totalnumofepisodes=number_of_episodes, lastupdated=next_update_time)
+            session.add(newlocalshow)
+            session.commit()
         elif not localshow and self.__forceLocal:
             number_of_episodes = -1
-        elif self.__forceUpdate or ((now-localshow[4] > 604800) and not self.__forceLocal):
+        elif self.__forceUpdate or ((now-localshow.lastupdated > 604800) and not self.__forceLocal):
             show = self.__db.get_series(series_id, "en" )
             number_of_episodes = len(show[season])
-            cur = con.cursor()
             next_update_time = now + self.__random.randint(0,  302400)
             self.__log.debug('Next update time is: '+str(next_update_time))
-            cur.execute('''UPDATE THETVDB SET totalnumofepisodes={:d},  lastupdated={:f} where id = {:d}'''.format(number_of_episodes,  next_update_time,  localshow[0]))
-            con.commit()
+            localshow.totalnumofepisodes = number_of_episodes
+            localshow.lastupdated = next_update_time
+            session.commit()
         else:
-            number_of_episodes = localshow[3]
+            number_of_episodes = localshow.totalnumofepisodes
 
-        con.close()
+        session.close()
         return number_of_episodes
 
 
@@ -402,6 +408,16 @@ def exit_gracefully(signum, frame):
 
     # restore the exit gracefully handler here
     signal.signal(signal.SIGINT, exit_gracefully)
+
+Base = declarative_base()
+class TVShow(Base):
+	__tablename__ = 'THETVDB'
+
+	id = Column(Integer, primary_key=True, autoincrement='ignore_fk')
+	seriesid = Column(Integer)
+	season = Column(Integer)
+	totalnumofepisodes = Column(Integer)
+	lastupdated = Column(REAL)
 
 if __name__ == "__main__":
     original_sigint = signal.getsignal(signal.SIGINT)
