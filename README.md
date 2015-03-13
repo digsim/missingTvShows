@@ -58,4 +58,7 @@ Doomsday Preppers                  : Season 1  and has watched  8/12 Episodes
 
 ## Configuration
 
-The script relys on a configuration file, tvshows.cfg. It only contains a few switches for thetvdb API keys and where to store locally cached information. However, there is one option which needs to be adapted to follow the configuration of your system. This is the *db* property pointing to the XBMC sqlite file for the movie information (called *MyVideos75.db*). In order to have the script running successfully this property needs to be set,
+The script relys on a configuration file, tvshows.cfg. It only contains a few switches for thetvdb API keys and where to store locally cached information. However, there is one option which needs to be adapted to follow the configuration of your system. This is the *db* property pointing to the XBMC sqlite file for the movie information (called *MyVideos90.db*). In order to have the script running successfully this property needs to be set.
+* On Linux system this files is usually: /home/<username>/.kodi/userdata/Database/MyVideos90.db
+* On Mac OsX the file is found under: /Users/<username>/Library/Application Support/Kodi/userdata/Database/MyVideos90.db
+* Under Windows there must me a simliar location ;-)
