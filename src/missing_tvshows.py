@@ -81,11 +81,11 @@ class TVShows:
         con = sqlite3.connect(self.__database)
         cur = con.cursor()
         # Select TV-Shows where no episode has been watched
-        cur.execute('select * from (select tvshow.c00 as Title, episodeview.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episodeview.idSeason as SeasoniD, max(episodeview.playCount) as Played from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episodeview.c12 order by tvshow.c00) where Played is NULL;')
+        cur.execute('select * from (select tvshow.c00 as Title, episode_view.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episode_view.idSeason as SeasoniD, max(episode_view.playCount) as Played from episode_view join seasons on seasons.idSeason = episode_view.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episode_view.c12 order by tvshow.c00) where Played is NULL;')
         nonewatched = cur.fetchall()
         
         # Select TV-Shows where at least one Episode was played
-        cur.execute('select * from (select tvshow.c00 as Title, episodeview.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episodeview.idSeason as SeasoniD, sum(episodeview.playCount) as Played from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episodeview.c12 order by tvshow.c00) where Played is not NULL;')
+        cur.execute('select * from (select tvshow.c00 as Title, episode_view.c12 as Season, count(*) as Episodes, tvshow.c12 as SeriesiD, episode_view.idSeason as SeasoniD, sum(episode_view.playCount) as Played from episode_view join seasons on seasons.idSeason = episode_view.idSeason join tvshow on tvshow.idShow = seasons.idShow group by tvshow.c00, episode_view.c12 order by tvshow.c00) where Played is not NULL;')
         somewatched = cur.fetchall()
         self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
         con.close()
@@ -179,7 +179,7 @@ class TVShows:
             
             if(int(number_of_episodes) != int(rowDownloaded)): # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                cur.execute('select tvshow.c00 as Title, episodeview.c12 as Season, episodeview.c13 as Episode, tvshow.c12 as SeriesiD  from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episodeview.c12, episodeview.c13;'.format(rowSeason,  rowId))
+                cur.execute('select tvshow.c00 as Title, episode_view.c12 as Season, episode_view.c13 as Episode, tvshow.c12 as SeriesiD  from episode_view join seasons on seasons.idSeason = episode_view.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episode_view.c12, episode_view.c13;'.format(rowSeason,  rowId))
                 episodes = cur.fetchall()
                 present_episodes = []
                 for episode in episodes:
@@ -204,7 +204,7 @@ class TVShows:
             number_of_episodes = self.getTotalNumberOfEpisodes(int(rowId),  int(rowSeason))
             full_episodes = range(1, number_of_episodes+1)
             if(int(number_of_episodes) != int(rowDownloaded)): # If number of local Episodes is different from TheTVDB
-                cur.execute('select tvshow.c00 as Title, episodeview.c12 as Season, episodeview.c13 as Episode, tvshow.c12 as SeriesiD  from episodeview join seasons on seasons.idSeason = episodeview.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episodeview.c12, episodeview.c13;'.format(rowSeason,  rowId))
+                cur.execute('select tvshow.c00 as Title, episode_view.c12 as Season, episode_view.c13 as Episode, tvshow.c12 as SeriesiD  from episode_view join seasons on seasons.idSeason = episode_view.idSeason join tvshow on tvshow.idShow = seasons.idShow where Season={:s} and SeriesiD={:s}  order by tvshow.c00, episode_view.c12, episode_view.c13;'.format(rowSeason,  rowId))
                 episodes = cur.fetchall()
                 present_episodes = []
                 for episode in episodes:
