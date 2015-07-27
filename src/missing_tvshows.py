@@ -106,7 +106,7 @@ class TVShows:
         # Map XBMC tables to objects
         self.__tvshow = Table('tvshow', metaData, autoload=True)
         self.__seasons = Table('seasons', metaData, autoload=True)
-        self.__episodeview = Table('episodeview', metaData, autoload=True)
+        self.__episodeview = Table('episode_view', metaData, autoload=True)
 
 
     def _make_sql_queries(self):
