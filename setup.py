@@ -25,7 +25,7 @@ def read(fname):
 
 
 setup(
-    name="Identify missing TVShows in Kodi",
+    name="missingTvShows",
     version="1.1",
     author="Andreas Ruppen",
     author_email="andreas.ruppen@gmail.com",
