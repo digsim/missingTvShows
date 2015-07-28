@@ -13,6 +13,7 @@ The output is either:
 * CSV files. The information is spread upon three files.
 
 The command line output is structured into the following four sections:
+
 1. All episods unwatched & Some episodes still missing
 2. Some episodes alread watched & Some episodes still missing
 3. All episodes unwatched & All episodes downloaded
