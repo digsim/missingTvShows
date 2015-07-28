@@ -79,6 +79,7 @@ sudo python setup.py install --record files.txt
 ```
 this will compile and install the project to the pyhton libraries (eg. /usr/local/lib/python2.7/dist-packages/XWoT_Model_Translator-1.1-py2.7.egg). Furthermore it will install a script in /usr/local/bin/:
 * missingTVShows
+
 The basic configuration and logging.conf are copied into /etc/MissingTVShows/. Upon the first start a copy of this directory is created in the user's home directory ~/.MissingTVShows/. From this point on configuration files are read from this location. It is however possible to overwrite them either by placing a file with the same name (but prefixed with a dot eg. .logging.conf) in the user home directory or a file with the same name in the current working directory.
 
 ### Development installation
@@ -131,7 +132,7 @@ Proceed (y/n)? y
 
 Upon the first launch, the script creates the ~/.MissingTVShows/ directory containing:
 * logging.conf where the logger is configured
-* tvshows.cfg where the genereal configuration is stored. Adapt at least the <db> property to point to the Kodi MyVideosXX.db. This file is usually found under
+* tvshows.cfg where the general configuration is stored. Adapt at least the <db> property and point it to the Kodi MyVideosXX.db. This file is usually found under
     * On Linux system this files is usually: /home/<username>/.kodi/userdata/Database/MyVideos93.db
     * On Mac OsX the file is found under: /Users/<username>/Library/Application Support/Kodi/userdata/Database/MyVideos93.db
     * Under Windows there must me a simliar location ;-)
