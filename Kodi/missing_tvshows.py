@@ -38,9 +38,11 @@ from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import select
 from sqlalchemy.orm import mapper
+from os.path import expanduser, join
 from sqlalchemy.orm import sessionmaker
 import sqlite3
 import sys, os
+import shutil
 import logging
 import logging.config
 import argparse
@@ -58,21 +60,27 @@ else:
 class TVShows:
     def __init__(self):
         """Do some initialization stuff"""
+        self.__CONFIG_DIR = '/etc/MissingTVShows/'
+        self.__USER_CONFIG_DIR = expanduser('~/.MissingTVShows')
+        self._checkUserConfigFiles()
+
         logging.basicConfig(level=logging.ERROR)
-        logging.config.fileConfig('logging.conf')
+        logging.config.fileConfig(
+            [join(self.__USER_CONFIG_DIR, 'logging.conf'), expanduser('~/.logging.conf'), 'logging.conf'])
         self.__log = logging.getLogger('TVShows')
 
         # Configure several elements depending on config file
         config = ConfigParser.SafeConfigParser()
-        config.read("tvshows.cfg")
+        config.read([join(self.__USER_CONFIG_DIR, 'tvshows.cfg'), expanduser('~/.tvshows.cfg'), 'tvshows.cfg'])
         self.__cwd = os.getcwd()
         self.__forceUpdate = False
         self.__forceLocal = False
+        self.__produceCVS = False
         self.__totalOfSeriesSeason = 0
         self.__alreadyCheckedSeriesSeason = 0
         self.__random = random.SystemRandom(time.localtime())
         # Config stuff from config file
-        self.__tvdbdatabse = config.get("Config", "tvdbdb")
+        self.__tvdbdatabse = join(self.__USER_CONFIG_DIR, config.get("Config", "tvdbdb"))
         self.__api_key = config.get("Config", "api_key")
         # Database stuff from config file
         self.__dbdialect = config.get("Database", "dialect")
@@ -85,6 +93,14 @@ class TVShows:
 
 
         self.checkLocalTVDBDatabase()
+
+    def _checkUserConfigFiles(self):
+        if not os.path.exists(self.__USER_CONFIG_DIR):
+            os.mkdir(self.__USER_CONFIG_DIR)
+        if not os.path.exists(join(self.__USER_CONFIG_DIR, 'logging.conf')):
+            shutil.copy(join(self.__CONFIG_DIR, 'logging.conf'), join(self.__USER_CONFIG_DIR, 'logging.conf'))
+        if not os.path.exists(join(self.__USER_CONFIG_DIR, 'tvshows.cfg')):
+            shutil.copy(join(self.__CONFIG_DIR, 'tvshows.cfg'), join(self.__USER_CONFIG_DIR, 'tvshows.cfg'))
 
     def _initDB(self):
         try:
@@ -244,7 +260,7 @@ class TVShows:
             with open(self.__database):
                 pass
         except IOError:
-            self.__log.error('XBMC Database not found - Aborting')
+            self.__log.error('KODI Database not found - Aborting')
             sys.exit(-404)
 
 
@@ -374,7 +390,8 @@ class TVShows:
         print('Acquiring necessary TV-Shows information')
         unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
         self._print_konsole(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
-        self._save_CSV(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
+        if self.__produceCVS:
+            self._save_CSV(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
 
 
     def getArguments(self, argv):
@@ -382,17 +399,37 @@ class TVShows:
         parser.add_argument("-i",  "--input",  help="input sqlite database file",  required=False,  metavar='DATABASE')
         parser.add_argument("-f",  "--force-update",  help="Force the update of the local TVDB Database",  required=False,  action="store_true",  dest='forceupdate')
         parser.add_argument("-o",  "--offline",  help="Force Offline mode, even if the script thinks that some entries needs to be refreshed",  required=False,  action="store_true",  dest='forcelocal')
+        parser.add_argument("-c",  "--csv",  help="Produce CSV output files",  required=False,  action="store_true",  dest='producecsv')
         args = parser.parse_args(argv)
         self.__database = args.input or self.__database
         self.__forceUpdate = args.forceupdate
         self.__forceLocal = args.forcelocal
+        self.__produceCVS = args.producecsv
         if self.__forceLocal:
             self.__forceUpdate = False
         self.checkXBMCDatabase()
         self.main()
         sys.exit(0)
 
+#################################################
+#  Class representing one TVShow stored in
+# the local TVDB cache DB
+#################################################
+Base = declarative_base()
+class TVShow(Base):
+	__tablename__ = 'THETVDB'
 
+	id = Column(Integer, primary_key=True, autoincrement='ignore_fk')
+	seriesid = Column(Integer)
+	season = Column(Integer)
+	totalnumofepisodes = Column(Integer)
+	lastupdated = Column(REAL)
+
+
+#################################################
+# Utility function to exit gracefully
+# if the scritp is called directly
+#################################################
 def exit_gracefully(signum, frame):
     # restore the original signal handler as otherwise evil things will happen
     # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
@@ -408,16 +445,6 @@ def exit_gracefully(signum, frame):
 
     # restore the exit gracefully handler here
     signal.signal(signal.SIGINT, exit_gracefully)
-
-Base = declarative_base()
-class TVShow(Base):
-	__tablename__ = 'THETVDB'
-
-	id = Column(Integer, primary_key=True, autoincrement='ignore_fk')
-	seriesid = Column(Integer)
-	season = Column(Integer)
-	totalnumofepisodes = Column(Integer)
-	lastupdated = Column(REAL)
 
 if __name__ == "__main__":
     original_sigint = signal.getsignal(signal.SIGINT)
