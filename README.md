@@ -62,9 +62,18 @@ Doomsday Preppers                  : Season 1  and has watched  8/12 Episodes
 
 # Installation
 
-## Final installation
+## From pip
 
-from a terminal launch
+Simply run
+```
+pip install missingTVShows
+```
+
+## From Sources
+
+### Final installation
+
+From a terminal launch
 ```
 sudo python setup.py install --record files.txt
 ```
@@ -72,7 +81,7 @@ this will compile and install the project to the pyhton libraries (eg. /usr/loca
 * missingTVShows
 The basic configuration and logging.conf are copied into /etc/MissingTVShows/. Upon the first start a copy of this directory is created in the user's home directory ~/.MissingTVShows/. From this point on configuration files are read from this location. It is however possible to overwrite them either by placing a file with the same name (but prefixed with a dot eg. .logging.conf) in the user home directory or a file with the same name in the current working directory.
 
-## Development installation
+### Development installation
 
 from a terminal launch
 ```
@@ -80,7 +89,7 @@ sudo python setup.py develop --record files.txt
 ```
 does the same as before but, uses links instead of copying files.
 
-# Clean Working directory
+### Clean Working directory
 
 To clean the working directory
 ```
@@ -92,9 +101,14 @@ sudo rm -rf build/ dist/ Identify_missing_TVShows_in_Kodi.egg-info/ files.txt
 
 ## Method 1
 ```
+pip uninstall missingTVShows
+```
+
+## Method 2 (if installed from sources)
+```
 cat files.txt |sudo xargs rm -rf
 ```
-## Method 2
+## Method 3  (if installed from sources)
 
 First find the installed package with pip and the uninstall it
 ```
@@ -113,7 +127,7 @@ Proceed (y/n)? y
 12:12 $
 ```
 
-## Configuration
+# Configuration
 
 Upon the first launch, the script creates the ~/.MissingTVShows/ directory containing:
 * logging.conf where the logger is configured
