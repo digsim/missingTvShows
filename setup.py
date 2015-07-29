@@ -26,13 +26,13 @@ def read(fname):
 
 setup(
     name="missingTvShows",
-    version="1.1",
+    version="1.1.1",
     author="Andreas Ruppen",
     author_email="andreas.ruppen@gmail.com",
     description="Manages Kodi TVShows",
     license="Apache",
     keywords="kodi, tvshows, xbmc",
-    url="https://github.com/digsim/missing_tv_shows_for_xbmc",
+    url="https://github.com/digsim/missingTvShows",
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     scripts=scripts,
     cmdclass=cmdclass,
@@ -46,7 +46,6 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: Apache Software License",
         'Operating System :: MacOS :: MacOS X',
-        'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
