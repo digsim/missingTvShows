@@ -26,7 +26,7 @@ def read(fname):
 
 setup(
     name="missingTvShows",
-    version="1.1.1",
+    version="1.1.2",
     author="Andreas Ruppen",
     author_email="andreas.ruppen@gmail.com",
     description="Manages Kodi TVShows",
