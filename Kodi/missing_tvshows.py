@@ -105,7 +105,7 @@ class TVShows:
     def _initDB(self):
         try:
             if self.__dbdialect == 'mysql':
-                engine = create_engine('mysql+mysqlconnector://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database)
+                engine = create_engine('mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database)
             elif self.__dbdialect == 'sqlite':
                 engine = create_engine('sqlite:///' + self.__database)
 
@@ -339,7 +339,7 @@ class TVShows:
         print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:44s} | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
         print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
         for row in unwatched_unfinished_shows:
-            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:43s}: | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
+            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:43s}: | S{:2s} ({:2f}/{:2d})| missing: {:74s}|'.format(row['Title'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
             print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
 
         print(Fore.RED + '###############################################################')
@@ -349,20 +349,20 @@ class TVShows:
         print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s})  | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'SeasonId', 'Season', 'Downloaded',  'Available',  'Missing'))
         print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
         for row in watchedsome_unfinished_shows:
-            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s}): | S{:2s} ({:2d}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
+            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s}): | S{:2s} ({:2f}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
             print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
 
         print(Fore.RED + '###############################################################')
         print('######################## Ready to Watch #######################')
         print('###############################################################'+ Style.RESET_ALL)
         for row in unwatched_finished_shows:
-            print('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( row['Title'], row['Season'], row['NbDownloaded'], row['NbAvailable']))
+            print('{:35s}: Season {:2s} and has {:2f}/{:2d} Episodes'.format( row['Title'], row['Season'], row['NbDownloaded'], row['NbAvailable']))
 
         print(Fore.RED +  '###############################################################')
         print('#################### Complete and Watching ####################')
         print('###############################################################'+ Style.RESET_ALL)
         for row in watchedsome_finished_shows:
-            print('{:35s}: Season {:2s} and has watched {:2d}/{:2d} Episodes'.format(  row['Title'], row['Season'], row['NbWatched'], row['NbDownloaded']))
+            print('{:35s}: Season {:2s} and has watched {:2f}/{:2d} Episodes'.format(  row['Title'], row['Season'], row['NbWatched'], row['NbDownloaded']))
 
 
     def _save_CSV(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
@@ -407,7 +407,7 @@ class TVShows:
         self.__produceCVS = args.producecsv
         if self.__forceLocal:
             self.__forceUpdate = False
-        self.checkXBMCDatabase()
+        #self.checkXBMCDatabase()
         self.main()
         sys.exit(0)
 
