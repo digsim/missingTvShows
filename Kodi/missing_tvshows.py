@@ -66,7 +66,8 @@ class TVShows:
 
         logging.basicConfig(level=logging.ERROR)
         logging.config.fileConfig(
-            [join(self.__USER_CONFIG_DIR, 'logging.conf'), expanduser('~/.logging.conf'), 'logging.conf'])
+            [join(self.__USER_CONFIG_DIR, 'logging.conf'), expanduser('~/.logging.conf'), 'logging.conf'],
+            defaults={'logfilename': os.path.join(expanduser('~/.MissingTVShows'), 'tvshows.log')})
         self.__log = logging.getLogger('TVShows')
 
         # Configure several elements depending on config file
