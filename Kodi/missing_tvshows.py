@@ -40,6 +40,7 @@ from sqlalchemy.sql import select
 from sqlalchemy.orm import mapper
 from os.path import expanduser, join
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import database_exists
 import sqlite3
 import sys, os
 import shutil
@@ -105,10 +106,17 @@ class TVShows:
 
     def _initDB(self):
         try:
+            db_connection_string = ''
             if self.__dbdialect == 'mysql':
-                engine = create_engine('mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database)
+                db_connection_string = 'mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database
             elif self.__dbdialect == 'sqlite':
-                engine = create_engine('sqlite:///' + self.__database)
+                db_connection_string = 'sqlite:///' + self.__database
+                if not self._isSQLite3(self.__database):
+                    raise ValueError(self.__database+" is not a valid sqlite database")
+
+            if not database_exists(db_connection_string):
+                raise ValueError("Database does not exist")
+            engine = create_engine(db_connection_string)
 
             self.__log.debug('Connected to database ' + self.__database)
 
@@ -124,6 +132,20 @@ class TVShows:
         self.__tvshow = Table('tvshow', metaData, autoload=True)
         self.__seasons = Table('seasons', metaData, autoload=True)
         self.__episodeview = Table('episode_view', metaData, autoload=True)
+
+    def _isSQLite3(self, filename):
+        """Courtes of http://stackoverflow.com/questions/12932607/how-to-check-with-python-and-sqlite3-if-one-sqlite-database-file-exists"""
+        from os.path import isfile, getsize
+
+        if not isfile(filename):
+            return False
+        if getsize(filename) < 100: # SQLite database file header is 100 bytes
+            return False
+
+        with open(filename, 'rb') as f:
+            header = f.read(100)
+
+        return header[0:16] == b'SQLite format 3\000'
 
 
     def _make_sql_queries(self):
@@ -269,7 +291,11 @@ class TVShows:
         """The main function"""
         if not self.__forceLocal:
             self.__db = api.TVDB(self.__api_key)
-        nonewatched,  somewatched = self._make_sql_queries()
+        try:
+            nonewatched,  somewatched = self._make_sql_queries()
+        except ValueError as ve:
+            self.__log.error('Could not query database: '+ve.message)
+            sys.exit(-5)
 
         unwatched_finished_shows = []
         unwatched_unfinished_shows =  []
