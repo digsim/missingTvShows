@@ -122,6 +122,7 @@ class TVShows:
 
         except ProgrammingError:
             self.__log.error('Connection to database ' + self.__database + ' failed')
+            raise ValueError("Could not connect to "+db_connection_string)
 
         session = sessionmaker(bind=engine)
         self.__session = session()
@@ -276,15 +277,6 @@ class TVShows:
             cur.execute('''CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)''')
             con.commit()
         con.close()
-
-
-    def checkXBMCDatabase(self):
-        try:
-            with open(self.__database):
-                pass
-        except IOError:
-            self.__log.error('KODI Database not found - Aborting')
-            sys.exit(-404)
 
 
     def getSeriesInformation(self):
