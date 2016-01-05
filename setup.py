@@ -34,7 +34,11 @@ setup(
     keywords="kodi, tvshows, xbmc",
     url="https://github.com/digsim/missingTvShows",
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    scripts=scripts,
+    entry_points={
+        'console_scripts': [
+            'missingTVShows=Kodi:main',
+        ],
+    },
     cmdclass=cmdclass,
     data_files=data_files,
     install_requires=reqs,
