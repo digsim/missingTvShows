@@ -57,10 +57,13 @@ if float(sys.version[:3])<3.0:
 else:
     import configparser as ConfigParser
 
+from .graceful_exit import Graceful_Exit
+
 
 class TVShows:
     def __init__(self):
         """Do some initialization stuff"""
+        self.original_sigint = signal.getsignal(signal.SIGINT)
         self.__CONFIG_DIR = '/etc/MissingTVShows/'
         self.__USER_CONFIG_DIR = expanduser('~/.MissingTVShows')
         self._checkUserConfigFiles()
@@ -72,7 +75,10 @@ class TVShows:
         self.__log = logging.getLogger('TVShows')
 
         # Configure several elements depending on config file
-        config = ConfigParser.SafeConfigParser()
+        if float(sys.version[:3])<3.2:
+            config = ConfigParser.SafeConfigParser()
+        else:
+            config = ConfigParser.ConfigParser()
         config.read([join(self.__USER_CONFIG_DIR, 'tvshows.cfg'), expanduser('~/.tvshows.cfg'), 'tvshows.cfg'])
         self.__cwd = os.getcwd()
         self.__forceUpdate = False
@@ -105,8 +111,8 @@ class TVShows:
             shutil.copy(join(self.__CONFIG_DIR, 'tvshows.cfg'), join(self.__USER_CONFIG_DIR, 'tvshows.cfg'))
 
     def _initDB(self):
+        db_connection_string = ''
         try:
-            db_connection_string = ''
             if self.__dbdialect == 'mysql':
                 db_connection_string = 'mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database
             elif self.__dbdialect == 'sqlite':
@@ -173,7 +179,7 @@ class TVShows:
             'Title', 'Season'
         ).order_by(
             'Title'
-        ).having(func.sum(episodeview.c.playCount) == None)
+        ).having(func.sum(episodeview.c.playCount) is None)
 
         nonewatched = query.all()
 
@@ -286,7 +292,7 @@ class TVShows:
         try:
             nonewatched,  somewatched = self._make_sql_queries()
         except ValueError as ve:
-            self.__log.error('Could not query database: '+ve.message)
+            self.__log.error('Could not query database: {0}'.format(str(ve)))
             sys.exit(-5)
 
         unwatched_finished_shows = []
@@ -406,6 +412,7 @@ class TVShows:
 
 
     def main(self):
+        signal.signal(signal.SIGINT, self.exit_gracefully)
         print('Acquiring necessary TV-Shows information')
         unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
         self._print_konsole(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
@@ -414,6 +421,10 @@ class TVShows:
 
 
     def getArguments(self, argv):
+        if float(sys.version[:3])<3.0:
+            self.__log.debug("Using Python 2")
+        else:
+            self.__log.debug("Using Python 3")
         parser = argparse.ArgumentParser(prog='missing_tvshows',  description='Parsing the local XBMC library for TV-Shows and discovers if new episodes are availalbe',  epilog='And that is how you use me')
         parser.add_argument("-i",  "--input",  help="input sqlite database file",  required=False,  metavar='DATABASE')
         parser.add_argument("-f",  "--force-update",  help="Force the update of the local TVDB Database",  required=False,  action="store_true",  dest='forceupdate')
@@ -426,47 +437,44 @@ class TVShows:
         self.__produceCVS = args.producecsv
         if self.__forceLocal:
             self.__forceUpdate = False
-        #self.checkXBMCDatabase()
         self.main()
         sys.exit(0)
 
+    def exit_gracefully(self, signum, frame):
+        # restore the original signal handler as otherwise evil things will happen
+        # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
+        signal.signal(signal.SIGINT, self.original_sigint)
+        #real_raw_input = vars(__builtins__).get('raw_input',input)
+        if float(sys.version[:3])<3.0:
+            real_raw_input=raw_input
+        else:
+            real_raw_input=input
+
+        try:
+            if real_raw_input('\nReally quit? (y/n)> ').lower().startswith('y'):
+                sys.exit(1)
+        except KeyboardInterrupt:
+            print("Ok ok, quitting")
+            sys.exit(1)
+
+        # restore the exit gracefully handler here
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+
 #################################################
-#  Class representing one TVShow stored in
+# Class representing one TVShow stored in
 # the local TVDB cache DB
 #################################################
 Base = declarative_base()
 class TVShow(Base):
-	__tablename__ = 'THETVDB'
+    __tablename__ = 'THETVDB'
 
-	id = Column(Integer, primary_key=True, autoincrement='ignore_fk')
-	seriesid = Column(Integer)
-	season = Column(Integer)
-	totalnumofepisodes = Column(Integer)
-	lastupdated = Column(REAL)
+    id = Column(Integer, primary_key=True, autoincrement='ignore_fk')
+    seriesid = Column(Integer)
+    season = Column(Integer)
+    totalnumofepisodes = Column(Integer)
+    lastupdated = Column(REAL)
 
-
-#################################################
-# Utility function to exit gracefully
-# if the scritp is called directly
-#################################################
-def exit_gracefully(signum, frame):
-    # restore the original signal handler as otherwise evil things will happen
-    # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
-    signal.signal(signal.SIGINT, original_sigint)
-    real_raw_input = vars(__builtins__).get('raw_input',input)
-
-    try:
-        if real_raw_input('\nReally quit? (y/n)> ').lower().startswith('y'):
-            sys.exit(1)
-    except KeyboardInterrupt:
-        print("Ok ok, quitting")
-        sys.exit(1)
-
-    # restore the exit gracefully handler here
-    signal.signal(signal.SIGINT, exit_gracefully)
 
 if __name__ == "__main__":
-    original_sigint = signal.getsignal(signal.SIGINT)
-    signal.signal(signal.SIGINT, exit_gracefully)
     sms = TVShows()
     sms.getArguments(sys.argv[1:])
