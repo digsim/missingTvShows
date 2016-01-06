@@ -7,7 +7,6 @@ from distutils.command.install_data import install_data
 from pip.req import parse_requirements
 
 
-scripts = ['bin/missingTVShows']
 cmdclass = {'install_data': install_data}
 data_files = [('/etc/MissingTVShows/', ['etc/tvshows.cfg', 'etc/logging.conf']), ('/usr/local/etc/bash_completion.d/', ['etc/missingTVShows-completion.bash'])]
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
