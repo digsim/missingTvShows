@@ -57,7 +57,7 @@ if float(sys.version[:3])<3.0:
 else:
     import configparser as ConfigParser
 
-from .graceful_exit import Graceful_Exit
+
 
 
 class TVShows:
