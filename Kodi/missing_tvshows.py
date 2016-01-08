@@ -179,7 +179,7 @@ class TVShows:
             'Title', 'Season'
         ).order_by(
             'Title'
-        ).having(func.sum(episodeview.c.playCount) is None)
+        ).having(func.sum(episodeview.c.playCount) == None)
 
         nonewatched = query.all()
 
