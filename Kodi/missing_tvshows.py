@@ -139,6 +139,7 @@ class TVShows:
         self.__tvshow = Table('tvshow', metaData, autoload=True)
         self.__seasons = Table('seasons', metaData, autoload=True)
         self.__episodeview = Table('episode_view', metaData, autoload=True)
+        self.__uniqueid = Table('uniqueid', metaData, autoload=True)
 
     def _isSQLite3(self, filename):
         """Courtes of http://stackoverflow.com/questions/12932607/how-to-check-with-python-and-sqlite3-if-one-sqlite-database-file-exists"""
@@ -161,12 +162,13 @@ class TVShows:
         tvshow = self.__tvshow
         seasons = self.__seasons
         episodeview = self.__episodeview
+        uniqueid = self.__uniqueid
 
         query = session.query(
             tvshow.c.c00.label('Title'),
             episodeview.c.c12.label('Season'),
             func.count().label('Episodes'),
-            tvshow.c.c12.label('SeriesID'),
+            uniqueid.c.value.label('SeriesID'),
             episodeview.c.idSeason.label('SeasoniD'),
             func.sum(episodeview.c.playCount).label('Played')
         ).select_from(
@@ -174,6 +176,8 @@ class TVShows:
                 seasons, seasons.c.idSeason == episodeview.c.idSeason
             ).join(
                 tvshow, tvshow.c.idShow == seasons.c.idShow
+            ).join(
+                uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12
             )
         ).group_by(
             'Title', 'Season'
@@ -187,7 +191,7 @@ class TVShows:
             tvshow.c.c00.label('Title'),
             episodeview.c.c12.label('Season'),
             func.count().label('Episodes'),
-            tvshow.c.c12.label('SeriesID'),
+            uniqueid.c.value.label('SeriesID'),
             episodeview.c.idSeason.label('SeasoniD'),
             func.sum(episodeview.c.playCount).label('Played')
         ).select_from(
@@ -195,6 +199,8 @@ class TVShows:
                 seasons, seasons.c.idSeason == episodeview.c.idSeason
             ).join(
                 tvshow, tvshow.c.idShow == seasons.c.idShow
+            ).join(
+                uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12
             )
         ).group_by(
             'Title', 'Season'
@@ -212,20 +218,23 @@ class TVShows:
         tvshow = self.__tvshow
         seasons = self.__seasons
         episodeview = self.__episodeview
+        uniqueid = self.__uniqueid
 
         query = session.query(
             tvshow.c.c00.label('Title'),
             episodeview.c.c12.label('Season'),
             episodeview.c.c13.label('Episode'),
-            tvshow.c.c12.label('SeriesID')
+            uniqueid.c.value.label('SeriesID')
         ).select_from(
             episodeview.join(
                 seasons, seasons.c.idSeason == episodeview.c.idSeason
             ).join(
                 tvshow, tvshow.c.idShow == seasons.c.idShow
+            ).join(
+                uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12
             )
         ).filter(
-            episodeview.c.c12 == season, tvshow.c.c12 == seriesId
+            episodeview.c.c12 == season, uniqueid.c.value == seriesId
         ).order_by(
             'Title', 'Season', 'Episode')
 
