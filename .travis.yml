@@ -1,0 +1,16 @@
+language: python
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+install:
+  - pip install tox
+  - pip install pex
+  - pip install -r requirements.txt
+script:
+  - tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')
+  - pip2.7 wheel -w /tmp/wheel2.7/ --trusted-host pypi.is-a-geek.com -i http://pypi.is-a-geek.com/simple missingtvshows
+  - pip2.6 wheel -w /tmp/wheel2.6/ --trusted-host pypi.is-a-geek.com -i http://pypi.is-a-geek.com/simple missingtvshows
+  - pip3.5 wheel -w /tmp/wheel3.5/ --trusted-host pypi.is-a-geek.com -i http://pypi.is-a-geek.com/simple missingtvshows
+  - tox -e package
+  - tox -e docs

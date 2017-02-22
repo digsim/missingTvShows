@@ -1,3 +1,6 @@
+License
+=======
+
 Apache License
 Version 2.0, January 2004
 http://www.apache.org/licenses/
@@ -176,8 +179,7 @@ recommend that a file or class name and description of purpose be included on
 the same "printed page" as the copyright notice for easier identification within
 third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
-
+   Copyright 2016 Andreas Ruppen
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at

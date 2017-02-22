@@ -1,3 +1,15 @@
-include README.md
+include *.py
+include LICENSE
+
+include *.txt
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
+recursive-include src *.bash
+recursive-include src *.conf
+recursive-include src *.ics
+recursive-include src *.py
+
+include *.rst *.md tox.ini
 include requirements.txt
-include etc/*
+recursive-exclude mtvs *.pyc *~

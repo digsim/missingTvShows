@@ -52,6 +52,7 @@ import math
 import random
 import signal
 import csv
+import sqlite3
 if float(sys.version[:3])<3.0:
     import ConfigParser
 else:
@@ -61,26 +62,10 @@ else:
 
 
 class TVShows:
-    def __init__(self):
+    def __init__(self, tvdbdatabase, apikey, dbdialect, database, dbuser, dbpasswd, dbhost, dbport):
         """Do some initialization stuff"""
-        self.original_sigint = signal.getsignal(signal.SIGINT)
-        self.__CONFIG_DIR = '/etc/MissingTVShows/'
-        self.__USER_CONFIG_DIR = expanduser('~/.MissingTVShows')
-        self._checkUserConfigFiles()
 
-        logging.basicConfig(level=logging.ERROR)
-        logging.config.fileConfig(
-            [join(self.__USER_CONFIG_DIR, 'logging.conf'), expanduser('~/.logging.conf'), 'logging.conf'],
-            defaults={'logfilename': os.path.join(expanduser('~/.MissingTVShows'), 'tvshows.log')})
-        self.__log = logging.getLogger('TVShows')
-
-        # Configure several elements depending on config file
-        if float(sys.version[:3])<3.2:
-            config = ConfigParser.SafeConfigParser()
-        else:
-            config = ConfigParser.ConfigParser()
-        config.read([join(self.__USER_CONFIG_DIR, 'tvshows.cfg'), expanduser('~/.tvshows.cfg'), 'tvshows.cfg'])
-        self.__cwd = os.getcwd()
+        self.__log = logging.getLogger('Tube4Droid')
         self.__forceUpdate = False
         self.__forceLocal = False
         self.__produceCVS = False
@@ -88,29 +73,45 @@ class TVShows:
         self.__alreadyCheckedSeriesSeason = 0
         self.__random = random.SystemRandom(time.localtime())
         # Config stuff from config file
-        self.__tvdbdatabse = join(self.__USER_CONFIG_DIR, config.get("Config", "tvdbdb"))
-        self.__api_key = config.get("Config", "api_key")
+        self.__tvdbdatabse = tvdbdatabase
+        self.__api_key = apikey
         # Database stuff from config file
-        self.__dbdialect = config.get("Database", "dialect")
-        self.__database = config.get("Database", "db")
-        self.__dbuser =  config.get("Database", "user")
-        self.__dbpasswd =  config.get("Database", "passwd")
-        self.__dbhostname =  config.get("Database", "hostname")
-        self.__dbport =  config.get("Database", "port")
+        self.__dbdialect = dbdialect
+        self.__database = database
+        self.__dbuser =  dbuser
+        self.__dbpasswd =  dbpasswd
+        self.__dbhostname =  dbhost
+        self.__dbport =  dbport
         self.__log.debug('Database '+self.__database)
 
 
-        self.checkLocalTVDBDatabase()
+        self._checkLocalTVDBDatabase()
 
-    def _checkUserConfigFiles(self):
-        if not os.path.exists(self.__USER_CONFIG_DIR):
-            os.mkdir(self.__USER_CONFIG_DIR)
-        if not os.path.exists(join(self.__USER_CONFIG_DIR, 'logging.conf')):
-            shutil.copy(join(self.__CONFIG_DIR, 'logging.conf'), join(self.__USER_CONFIG_DIR, 'logging.conf'))
-        if not os.path.exists(join(self.__USER_CONFIG_DIR, 'tvshows.cfg')):
-            shutil.copy(join(self.__CONFIG_DIR, 'tvshows.cfg'), join(self.__USER_CONFIG_DIR, 'tvshows.cfg'))
+    def _checkLocalTVDBDatabase(self):
+        """
+        Checks if the local thetvdb.com cache DB is initialized. In order to save bandwith and not hit to badly thetvdb.com
+        the results stay cached for approx. 7 days. This function checks if this cache Sqlite DB exists and if not
+        initializes the DB.
 
-    def _initDB(self):
+        :return: Nothing
+        """
+        con = sqlite3.connect(self.__tvdbdatabse)
+        cur = con.cursor()
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        if not cur.fetchall():
+            cur = con.cursor()
+            cur.execute(
+                '''CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)''')
+            con.commit()
+        con.close()
+
+    def _initDBConnection(self):
+        """
+        Initializes the DB connections to Kodi's database. This connection can either be an MySQL or an Sqlite connection.
+        Furthermore, this functions defines some Kodi tables which will later be used in various queries.
+
+        :return: Nothing
+        """
         db_connection_string = ''
         try:
             if self.__dbdialect == 'mysql':
@@ -142,7 +143,13 @@ class TVShows:
         self.__uniqueid = Table('uniqueid', metaData, autoload=True)
 
     def _isSQLite3(self, filename):
-        """Courtes of http://stackoverflow.com/questions/12932607/how-to-check-with-python-and-sqlite3-if-one-sqlite-database-file-exists"""
+        """
+        Checks if a file is an Sqlite DB.
+        Courtesy of http://stackoverflow.com/questions/12932607/how-to-check-with-python-and-sqlite3-if-one-sqlite-database-file-exists.
+
+        :param filename: Location of sqlite db.
+        :return: true if an sqlite db is found, false otherwise.
+        """
         from os.path import isfile, getsize
 
         if not isfile(filename):
@@ -157,7 +164,17 @@ class TVShows:
 
 
     def _make_sql_queries(self):
-        self._initDB()
+        """
+        Queries the Kodi database for availalbe series. Two queries are made, the first one queries all tv shows where
+        no episode is watched so far. These series will be candidates for the sections 'Ready to Watch' and 'Unwatched Missing'.
+        The second, queries all tv shows having at least one watched episodes. These series will be candidates for
+        'Watched missing' and 'Complete and Watching'.
+        If more than one season is available for a given series, it will occur multiple times in either one or the other
+        or both lists.
+
+        :return: two list of locally availalbe series.
+        """
+        self._initDBConnection()
         session = self.__session
         tvshow = self.__tvshow
         seasons = self.__seasons
@@ -214,6 +231,14 @@ class TVShows:
         return nonewatched,  somewatched
 
     def _get_Episodes(self, season, seriesId):
+        """
+        Queries the episodes of a given serie and a given season.
+
+        :param season: Season to check
+        :param seriesId: Serie to check. The id corresponds to the thetvdb.com id.
+        :return: a list of locally availalbe episodes.
+        """
+
         session = self.__session
         tvshow = self.__tvshow
         seasons = self.__seasons
@@ -243,6 +268,15 @@ class TVShows:
 
 
     def getTotalNumberOfEpisodes(self,  series_id,  season):
+        """
+        Queries to number of aired episodes according to thetvdb.com. To save bandwith, we first check in the local
+        thetvdb cache which is stored in a Sqlite DB. If we have a cache miss, we query thetvdb directly and store
+        the result in the local SQlite DB.
+
+        :param series_id: Series to look-up. Corresponds to the thetvdb.com identifier.
+        :param season: Season to look-up.
+        :return: the number of aired episodes.
+        """
         engine = create_engine('sqlite:///' + self.__tvdbdatabse)
         sessionma = sessionmaker(bind=engine)
         session = sessionma()
@@ -282,20 +316,15 @@ class TVShows:
         session.close()
         return number_of_episodes
 
-
-    def checkLocalTVDBDatabase(self):
-        con = sqlite3.connect(self.__tvdbdatabse)
-        cur = con.cursor()
-        cur.execute("Select name from sqlite_master where type='table';")
-        if not cur.fetchall():
-            cur = con.cursor()
-            cur.execute('''CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)''')
-            con.commit()
-        con.close()
-
-
     def getSeriesInformation(self):
-        """The main function"""
+        """
+        Main function. Puts all pieces together. It queries the local Kodi DB and compares the locally availalbe
+        episodes for each Serie/Season combinaton and compares these results with the avialable episodes on
+        thetvdb.com
+
+        :return: Nothing
+        """
+
         if not self.__forceLocal:
             self.__db = api.TVDB(self.__api_key)
         try:
@@ -363,111 +392,9 @@ class TVShows:
         return unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows
 
 
-    def _print_konsole(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
-        sys.stdout.write('\n')
-        print(Fore.RED + '##############################################################')
-        print('###################### Unwatched Missing #####################')
-        print('##############################################################'+ Style.RESET_ALL)
-
-        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-        print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:44s} | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'Season', 'Downloaded',  'Available',  'Missing'))
-        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-        for row in unwatched_unfinished_shows:
-            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:43s}: | S{:2s} ({:2.0f}/{:2d})| missing: {:74s}|'.format(row['Title'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
-            print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-
-        print(Fore.RED + '###############################################################')
-        print('######################## Watched Missing ######################')
-        print('###############################################################'+ Style.RESET_ALL)
-        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-        print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s})  | {:s} ({:s}/{:s})| {:65s}|'.format('Title', 'SeasonId', 'Season', 'Downloaded',  'Available',  'Missing'))
-        print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-        for row in watchedsome_unfinished_shows:
-            print(Style.DIM + Fore.GREEN +'|' + Style.RESET_ALL + '{:35s}({:8s}): | S{:2s} ({:2.0f}/{:2d})| missing: {:74s}|'.format(row['Title'], row['SeasonId'], row['Season'], row['NbDownloaded'],  row['NbAvailable'],  row['MissingEpisodes']))
-            print(Style.DIM + Fore.GREEN + '-------------------------------------------------------------------------------------------------------------------------------------------------'+ Style.RESET_ALL)
-
-        print(Fore.RED + '###############################################################')
-        print('######################## Ready to Watch #######################')
-        print('###############################################################'+ Style.RESET_ALL)
-        for row in unwatched_finished_shows:
-            print('{:35s}: Season {:2s} and has {:2.0f}/{:2d} Episodes'.format( row['Title'], row['Season'], row['NbDownloaded'], row['NbAvailable']))
-
-        print(Fore.RED +  '###############################################################')
-        print('#################### Complete and Watching ####################')
-        print('###############################################################'+ Style.RESET_ALL)
-        for row in watchedsome_finished_shows:
-            print('{:35s}: Season {:2s} and has watched {:2.0f}/{:2d} Episodes'.format(  row['Title'], row['Season'], row['NbWatched'], row['NbDownloaded']))
 
 
-    def _save_CSV(self, unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows):
-        self._write_CSV(watchedsome_finished_shows, 'watchedsome_finished_shows.csv')
-        self._write_CSV(unwatched_unfinished_shows, 'unwatched_unfinished_shows.csv')
-        self._write_CSV(watchedsome_unfinished_shows, 'watchedsome_unfinished_shows.csv')
 
-
-    def _write_CSV(self, series, filename):
-        self.__log.debug("Writing to "+filename)
-        if sys.version_info >= (3,0,0):
-            f = open(filename, 'w', newline='')
-        else:
-            f = open(filename, 'wb')
-        with f:
-            writer = csv.writer(f)
-            writer.writerow(['SeasonId', 'Title', 'Season', 'Downloaded',  'Available',  'Missing'])
-
-            for show in series:
-                writer.writerow([show['SeasonId'], show['Title'].encode("utf-8"), show['Season'], show['NbDownloaded'], show['NbAvailable'], show['MissingEpisodes']])
-            f.close()
-
-
-    def main(self):
-        signal.signal(signal.SIGINT, self.exit_gracefully)
-        print('Acquiring necessary TV-Shows information')
-        unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows = self.getSeriesInformation()
-        self._print_konsole(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
-        if self.__produceCVS:
-            self._save_CSV(unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows)
-
-
-    def getArguments(self, argv):
-        if float(sys.version[:3])<3.0:
-            self.__log.debug("Using Python 2")
-        else:
-            self.__log.debug("Using Python 3")
-        parser = argparse.ArgumentParser(prog='missing_tvshows',  description='Parsing the local XBMC library for TV-Shows and discovers if new episodes are availalbe',  epilog='And that is how you use me')
-        parser.add_argument("-i",  "--input",  help="input sqlite database file",  required=False,  metavar='DATABASE')
-        parser.add_argument("-f",  "--force-update",  help="Force the update of the local TVDB Database",  required=False,  action="store_true",  dest='forceupdate')
-        parser.add_argument("-o",  "--offline",  help="Force Offline mode, even if the script thinks that some entries needs to be refreshed",  required=False,  action="store_true",  dest='forcelocal')
-        parser.add_argument("-c",  "--csv",  help="Produce CSV output files",  required=False,  action="store_true",  dest='producecsv')
-        args = parser.parse_args(argv)
-        self.__database = args.input or self.__database
-        self.__forceUpdate = args.forceupdate
-        self.__forceLocal = args.forcelocal
-        self.__produceCVS = args.producecsv
-        if self.__forceLocal:
-            self.__forceUpdate = False
-        self.main()
-        sys.exit(0)
-
-    def exit_gracefully(self, signum, frame):
-        # restore the original signal handler as otherwise evil things will happen
-        # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
-        signal.signal(signal.SIGINT, self.original_sigint)
-        #real_raw_input = vars(__builtins__).get('raw_input',input)
-        if float(sys.version[:3])<3.0:
-            real_raw_input=raw_input
-        else:
-            real_raw_input=input
-
-        try:
-            if real_raw_input('\nReally quit? (y/n)> ').lower().startswith('y'):
-                sys.exit(1)
-        except KeyboardInterrupt:
-            print("Ok ok, quitting")
-            sys.exit(1)
-
-        # restore the exit gracefully handler here
-        signal.signal(signal.SIGINT, self.exit_gracefully)
 
 #################################################
 # Class representing one TVShow stored in
