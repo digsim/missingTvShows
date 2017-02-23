@@ -1,16 +1,32 @@
 language: python
 python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
+- '2.7'
+- '3.4'
 install:
-  - pip install tox
-  - pip install pex
-  - pip install -r requirements.txt
+- pip install tox
+- pip install pex
+- pip install -r requirements.txt
 script:
-  - tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')
-  - pip2.7 wheel -w /tmp/wheel2.7/ --trusted-host pypi.is-a-geek.com -i http://pypi.is-a-geek.com/simple missingtvshows
-  - pip2.6 wheel -w /tmp/wheel2.6/ --trusted-host pypi.is-a-geek.com -i http://pypi.is-a-geek.com/simple missingtvshows
-  - pip3.5 wheel -w /tmp/wheel3.5/ --trusted-host pypi.is-a-geek.com -i http://pypi.is-a-geek.com/simple missingtvshows
-  - tox -e package
-  - tox -e docs
+- tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')
+- pex . --no-wheel -o dist/missingtvshows$(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/').pex -e mtvs.main:main  -r pex_private_requirements.txt
+  -r pex_public_requirements.txt
+- tox -e docs
+
+notifications:
+  slack:
+    secure: PGoIf/m17cPQAVW/8oIork4qg2uYyLPAGaZ+ral9E3E7E2NTshtnD28YoMWYflBu/W2BFot11h/tgYrcyxRNv8U/5RDezS8lMtwKroc4OxbVI86W20pwuepPsKgovbWXYkmGvsRuzqxiewA3Tqd1g+xAArLOjx3eQ+KQTxTrJHQl1UGZhR8SI3Anhdp7dhlbIUk69QCumtRGGbWJ12oUdU5jm/u0mLz7fnrnu1ytqrRXial6wQ+89WtN5egv9py5YXxXwci3ANWcqgJIUubdOIEgQIlYuwhtum3HQgumbTUE6pX1G8UHuELMaQfDVccCItfW8geaKS3P8syg9sSX3787x6RhDPGTZjaVhMTYIYSOT+aQztIVv6d+RJ53Wdnb/kdnN7T5dt9KK4c9owF5IvA9xhFZEQafJ11hj8C/PBAxadqUKc5rLT/+VKy0FoSwX/zAAIV2j4BrHf8EeyaXh7WEYALbMZofVYWkMZeJANMWP+quvGnPixHCVzlD5S86MCd+zJxXtvXrWZ1n6ts26s7FW/SjnhY8roTKFwqPFqINpIdQd07j4m+5FybV12zt4d+O48/wypLZGfBfdU040PMZbBgVsz46Km1GUUrnJrP8NHTffmktZ9Pk4PT3YeU9LSZ6JvMW0yjnDkg3pYe12W8ggbF79TCVOhJAphOmsWA=
+  email:
+    recipients:
+    - andreas.ruppen@gmail.com
+    on_success: change
+    on_failure: always
+
+deploy:
+  provider: releases
+  api_key:
+    secure: gJhWVDcOXTJslMWOyK/faG8cocoYUy35hXdPlwpAwENsIDOa45/fHNSCsU14AngbKORkHLi1uscufMTL9ZpnKdi9jchO5BDrp0rF4BwmUKsxN0U4N3wRDP4e+NI/P/Om7q47dOx929Oj2IhL9zLlgo27jNerPLoM+nalAIlp47YTyq/YGpJxlaBelDP3QxKCre9nYf1F1lVozN7Nr4xgPDRo2Cim00RMJ59r5XmjYB38T8F7V8m6+O6jLIJMYxT9+Ptr1eoBxf8EDae5xJUWN//l14pTXmH6c9+jyelmtKCqMITaEf4ZPHsmaRf0E7xb2MGwQp7JpCr1rw9fq+UCrAJoxsptNNdPbp972VFRtHDKdQxcKxxWR8l4xgMwWYu8Fx4rfEPiN9xT3CbMC3wYFW8Jk7uxqCoQ2VUWYD3JcTXZadwNyTEdjxIpmwi/5GqN9+9TZB418Zw6xRVIRT1QvL5OIrsfcH+YGlu9q/uL3Nz/cmjqjJtVZAdrnZXRHuCWyFI6RT7EBNY3WjS9DD2fuVP83mvDFkzhrujVsWJmDiYCMaulTsVRVp68MLMH4UTRmemdaz0GQTdNEUzMXdzJkQC60PMkJklVyqxkeexzWJyYHDYucD5J2xzNtuGNqlqMxU1aexPVdPq6j+vEHyKZyjn5R3t5w2PfISdmo4QZMHU=
+  file:
+  - dist/missingtvshows27.pex
+  - dist/missingtvshows34.pex
+  on:
+    tags: true
