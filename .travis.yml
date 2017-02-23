@@ -8,10 +8,9 @@ install:
 - pip install -r requirements.txt
 script:
 - tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')
-- pex . --no-wheel -o dist/missingtvshows$(echo $TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/').pex -e mtvs.main:main  -r pex_private_requirements.txt
+- pex . --no-wheel -o dist/missingtvshows$(echo $TRAVIS_PYTHON_VERSION | tr -d .').pex -e mtvs.main:main  -r pex_private_requirements.txt
   -r pex_public_requirements.txt
 - tox -e docs
-
 notifications:
   slack:
     secure: PGoIf/m17cPQAVW/8oIork4qg2uYyLPAGaZ+ral9E3E7E2NTshtnD28YoMWYflBu/W2BFot11h/tgYrcyxRNv8U/5RDezS8lMtwKroc4OxbVI86W20pwuepPsKgovbWXYkmGvsRuzqxiewA3Tqd1g+xAArLOjx3eQ+KQTxTrJHQl1UGZhR8SI3Anhdp7dhlbIUk69QCumtRGGbWJ12oUdU5jm/u0mLz7fnrnu1ytqrRXial6wQ+89WtN5egv9py5YXxXwci3ANWcqgJIUubdOIEgQIlYuwhtum3HQgumbTUE6pX1G8UHuELMaQfDVccCItfW8geaKS3P8syg9sSX3787x6RhDPGTZjaVhMTYIYSOT+aQztIVv6d+RJ53Wdnb/kdnN7T5dt9KK4c9owF5IvA9xhFZEQafJ11hj8C/PBAxadqUKc5rLT/+VKy0FoSwX/zAAIV2j4BrHf8EeyaXh7WEYALbMZofVYWkMZeJANMWP+quvGnPixHCVzlD5S86MCd+zJxXtvXrWZ1n6ts26s7FW/SjnhY8roTKFwqPFqINpIdQd07j4m+5FybV12zt4d+O48/wypLZGfBfdU040PMZbBgVsz46Km1GUUrnJrP8NHTffmktZ9Pk4PT3YeU9LSZ6JvMW0yjnDkg3pYe12W8ggbF79TCVOhJAphOmsWA=
@@ -20,7 +19,6 @@ notifications:
     - andreas.ruppen@gmail.com
     on_success: change
     on_failure: always
-
 deploy:
   provider: releases
   api_key:
@@ -30,4 +28,4 @@ deploy:
   - dist/missingtvshows34.pex
   skip_cleanup: true
   on:
-    tags: true
+    repo: digsim/missingTvShows
