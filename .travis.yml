@@ -8,8 +8,7 @@ install:
 - pip install -r requirements.txt
 script:
 - tox -e $(echo py$TRAVIS_PYTHON_VERSION | tr -d . | sed -e 's/pypypy/pypy/')
-- pex . --no-wheel -o dist/missingtvshows$(echo $TRAVIS_PYTHON_VERSION | tr -d .').pex -e mtvs.main:main  -r pex_private_requirements.txt
-  -r pex_public_requirements.txt
+- pex . --no-wheel -o dist/missingtvshows34.pex -e mtvs.main:main  -r pex_private_requirements.txt -r pex_public_requirements.txt
 - tox -e docs
 notifications:
   slack:
