@@ -35,7 +35,7 @@ def read(fname):
 
 setup(
     name="mtvs",
-    version="1.2.1.dev0",
+    version="1.2.2",
     author="Andreas Ruppen",
     author_email="andreas.ruppen@gmail.com",
     description="Manages Kodi TVShows",

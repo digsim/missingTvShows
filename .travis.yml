@@ -26,4 +26,4 @@ deploy:
   - dist/missingtvshows$(echo py$TRAVIS_PYTHON_VERSION | tr -d .).pex
   skip_cleanup: true
   on:
-    repo: digsim/missingTvShows
+    tags: true
