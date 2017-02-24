@@ -29,7 +29,7 @@ master_doc = 'index'
 project = u'Missing TV Shows for Kodi'
 this_year = datetime.date.today().year
 copyright = u'{}, Andreas Ruppen'.format(this_year)
-version = pkg_resources.get_distribution('mtvs').version
+version = "1.2.2.dev0"
 release = version
 
 exclude_patterns = ['_build', 'lib', 'bin', 'include', 'local']
