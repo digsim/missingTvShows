@@ -6,7 +6,7 @@ The `missingtvshows`_ verifies the locally available episodes for all Kodi Serie
 
 ----
 
-    :Homepage: https://github.com/digsim/missingTvShows
+    :Homepage: http://missingtvshows.readthedocs.io/en/latest/
     :Code: https://github.com/digsim/missingTvShows
     :Mailing list: https://github.com/digsim/missingTvShows
     :Dependencies: `pytvdbapi`_ `colorama`_ `sqlalchemy`_ `sqlalchemy-utils`_ `six`_ `mysqlclient`_  `progressbar2`_ and `setuptools`_
