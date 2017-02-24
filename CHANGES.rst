@@ -1,8 +1,10 @@
 Changelog
 =========
 
-1.11 (Unreleased)
+1.11.0 (Unreleased)
 -----------------
+
+- Readthedocs integration
 
 - Full Travis-Ci Integration
 
