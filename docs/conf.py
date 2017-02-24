@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# icalendar documentation build configuration file
+# missingtvshows documentation build configuration file
 import pkg_resources
 import datetime
 import os
-from mtvs import __version__
+
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -30,7 +30,10 @@ master_doc = 'index'
 project = u'Missing TV Shows for Kodi'
 this_year = datetime.date.today().year
 copyright = u'{}, Andreas Ruppen'.format(this_year)
-version = __version__
+if on_rtd:
+    version = 1.11.0.dev0
+else:
+    version = pkg_resources.require("missingtvshows")[0].version
 release = version
 
 exclude_patterns = ['_build', 'lib', 'bin', 'include', 'local']

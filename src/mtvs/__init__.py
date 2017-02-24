@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 import pkg_resources
 
-__version__ = "1.11.0.dev0"
+__version__ = pkg_resources.require("missingtvshows")[0].version
 
