@@ -3,6 +3,7 @@
 import pkg_resources
 import datetime
 import os
+from mtvs import __version__
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -29,7 +30,7 @@ master_doc = 'index'
 project = u'Missing TV Shows for Kodi'
 this_year = datetime.date.today().year
 copyright = u'{}, Andreas Ruppen'.format(this_year)
-version = pkg_resources.get_distribution('missingtvshows').version
+version = __version__
 release = version
 
 exclude_patterns = ['_build', 'lib', 'bin', 'include', 'local']

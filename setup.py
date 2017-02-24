@@ -6,6 +6,7 @@ import sys
 from setuptools import setup, find_packages
 from distutils.command.install_data import install_data
 from pip.req import parse_requirements
+from mtvs import __version__
 
 
 cmdclass = {'install_data': install_data}
@@ -35,7 +36,7 @@ def read(fname):
 
 setup(
     name="missingtvshows",
-    version="1.2.2.dev0",
+    version=__version__,
     author="Andreas Ruppen",
     author_email="andreas.ruppen@gmail.com",
     description="Manages Kodi TVShows",
