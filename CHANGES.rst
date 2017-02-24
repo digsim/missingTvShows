@@ -4,6 +4,8 @@ Changelog
 1.11 (Unreleased)
 -----------------
 
+- Full Travis-Ci Integration
+
 - Refactoring to PPIC
 
 
