@@ -31,7 +31,7 @@ project = u'Missing TV Shows for Kodi'
 this_year = datetime.date.today().year
 copyright = u'{}, Andreas Ruppen'.format(this_year)
 if on_rtd:
-    version = '1.11.0.dev0'
+    version = '1.2.2'
 else:
     version = pkg_resources.require("missingtvshows")[0].version
 release = version
