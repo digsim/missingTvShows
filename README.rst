@@ -1,5 +1,5 @@
 ==========================================================
-AdNITC - Calendar to ITC script
+Missing TV Shows for Kodi
 ==========================================================
 
 The `missingtvshows`_ verifies the locally available episodes for all Kodi Series
@@ -16,7 +16,7 @@ The `missingtvshows`_ verifies the locally available episodes for all Kodi Serie
 ----
 
 
-.. image:: https://travis-ci.org/collective/icalendar.svg?branch=master
+.. image:: https://travis-ci.org/digsim/missingTvShows.svg?branch=master
     :target: https://travis-ci.org/digsim/missingTvShows
 
 

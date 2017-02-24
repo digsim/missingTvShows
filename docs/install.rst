@@ -3,16 +3,18 @@ Installation
 
 From Download
 --------------
+
 The simplest way to use *adnitc* is to download the packaged *pex* file from `adnitc`_ and put it somewhere on the path like ``/usr/local/bin/``or ``/usr/local/share/bin``or ``~/.local/bin/`` and make it executable,
 
 From this point on, the binary can be executed by calling the *pex* file directly. There exist 3 variants of the *pex* file, depending on the availalbe python version. Choose either *adnitc26.pex*, *adnitc27.pex* or *adnitc35.pex* depending on what is availalbe on your system.
 
 .. only:: builder_html
-Download files directly from here:
 
-* :download:`adnitc26.pex <../dist/adnitc26.pex>`
-* :download:`adnitc27.pex <../dist/adnitc27.pex>`
-* :download:`adnitc35.pex <../dist/adnitc35.pex>`
+    Download files directly from here:
+
+    * :download:`adnitc26.pex <../dist/adnitc26.pex>`
+    * :download:`adnitc27.pex <../dist/adnitc27.pex>`
+    * :download:`adnitc35.pex <../dist/adnitc35.pex>`
 
 From pip
 ---------

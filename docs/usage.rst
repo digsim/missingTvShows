@@ -2,7 +2,7 @@ Usage
 =================
 
 
-A Sample output may be look like this:
+A Sample output may be look like this::
 
     :src$ missingTVShows
     Acquiring necessary TV-Shows information
@@ -42,7 +42,7 @@ Installation
 From pip
 ^^^^^^^^^^
 
-Simply run
+Simply run::
 
     pip install missingTVShows
 
@@ -52,7 +52,7 @@ From Sources
 
 ### Final installation
 
-From a terminal launch
+From a terminal launch::
 
     sudo python setup.py install --record files.txt
 
@@ -64,7 +64,7 @@ The basic configuration and logging.conf are copied into /etc/MissingTVShows/. U
 
 ### Development installation
 
-from a terminal launch
+from a terminal launch::
 
     sudo python setup.py develop --record files.txt
 
@@ -73,7 +73,7 @@ does the same as before but, uses links instead of copying files.
 
 ### Clean Working directory
 
-To clean the working directory
+To clean the working directory::
 
     sudo python setup.py clean --all
     sudo rm -rf build/ dist/ Identify_missing_TVShows_in_Kodi.egg-info/ files.txt
@@ -85,11 +85,15 @@ Uninstall
 Method 1
 ^^^^^^^^^^^^^
 
+Via pip::
+
     pip uninstall missingTVShows
 
 
 Method 2 (if installed from sources)
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By hand::
 
     cat files.txt |sudo xargs rm -rf
 
@@ -97,7 +101,7 @@ Method 2 (if installed from sources)
 Method 3  (if installed from sources)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First find the installed package with pip and the uninstall it
+First find the installed package with pip and the uninstall it::
 
     ✔ ~/Documents/Programming/Python/missing_tv_shows_for_xbmc [master ↑·1|✚ 1]
     12:11 $ pip freeze |grep Identify-missing-TVShows
@@ -120,8 +124,10 @@ Configuration
 Upon the first launch, the script creates the ~/.MissingTVShows/ directory containing:
 * logging.conf where the logger is configured
 * tvshows.cfg where the general configuration is stored. Adapt at least the <db> property and point it to the Kodi MyVideosXX.db. This file is usually found under
+
     * On Linux system this files is usually: /home/<username>/.kodi/userdata/Database/MyVideos93.db
     * On Mac OsX the file is found under: /Users/<username>/Library/Application Support/Kodi/userdata/Database/MyVideos93.db
     * Under Windows there must me a simliar location ;-)
+
 * tvdbdb.db the local TheTVDB.com cache as SQLite file
 
