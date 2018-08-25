@@ -33,7 +33,7 @@ copyright = u'{}, Andreas Ruppen'.format(this_year)
 if on_rtd:
     version = '1.2.2.dev0'
 else:
-    version = pkg_resources.require("missingtvshows")[0].version
+    version = pkg_resources.require("mtvs")[0].version
 release = version
 
 exclude_patterns = ['_build', 'lib', 'bin', 'include', 'local']
