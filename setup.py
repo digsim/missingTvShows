@@ -37,7 +37,7 @@ def read(fname):
 
 
 setup(
-    name="missingtvshows",
+    name="mtvs",
     version="1.2.2.dev0",
     author="Andreas Ruppen",
     author_email="andreas.ruppen@gmail.com",

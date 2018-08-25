@@ -1,6 +1,6 @@
 pytvdbapi==0.4.0
 colorama==0.3.2
-sqlalchemy==1.1.5
+sqlalchemy==1.2.11
 sqlalchemy-utils==0.31.4
-mysqlclient==1.3.7
+mysqlclient==1.3.13
 progressbar2==3.11.0
