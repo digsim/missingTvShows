@@ -19,18 +19,88 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    name: test with ${{ matrix.py }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["pypy3.9", "pypy3.10", "3.9", "3.10", "3.11", "3.12"]
-
+        py:
+          #- "3.12"
+          - "3.11"
+          #- "3.10"
+          #- "3.9"
+          #- "3.8"
+        os:
+          #- ubuntu-latest
+          - macos-latest
+          #- windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+        if: matrix.os == 'macos-latest'
+
+      - name: Install prerequisites
+        run: |
+          brew install mysql-client
+        if: matrix.os == 'macos-latest'
+
+      - name: Setup python for test ${{ matrix.py }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.py }}
+
+      - name: Install tox and pex dependencies
+        run: |
+          python -m pip install --upgrade pip
+          ls /usr/local/opt/mysql-client/lib/pkgconfig
+          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
+          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
+          python -m pip install pex tox tox-gh
+
       # You can test your matrix by printing the current Python version
-      - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
+      - name: Build Software
+        run: |
+          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
+          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
+          tox 
+
+      - name: Build documentation
+        run: |
+          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
+          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
+          tox -e docs
+
+      - name: Build distributable packages
+        run: |
+          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
+          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
+          tox -e package
+
+      - name: Verify package is runnable
+        run: ./dist/missingtvshows_${{ runner.os }}.pex
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .tox/docs/tmp/html/
+          force_orphan: true
+      
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./dist/missingtvshows_${{ runner.os }}.pex
+          asset_name: missingtvshows_${{ runner.os }}.pex
+          tag: ${{ github.ref }}
+        if: matrix.py == '3.11'
