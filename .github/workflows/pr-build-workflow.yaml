@@ -54,15 +54,26 @@ jobs:
           python -m pip install pex tox tox-gh
 
       # You can test your matrix by printing the current Python version
-      - name: Run TOX
+      - name: Build Software
         run: |
           export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
           export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
           export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
           tox 
 
-      - name: Create pex package
-        run: tox -e package
+      - name: Build documentation
+        run: |
+          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
+          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
+          tox -e docs
+
+      - name: Build distributable packages
+        run: |
+          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
+          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
+          tox -e package
 
       - name: Verify package is runnable
         run: ./dist/missingtvshows35.pex
