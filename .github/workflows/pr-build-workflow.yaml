@@ -48,11 +48,11 @@ jobs:
       - name: Install tox and pex dependencies
         run: |
           python -m pip install --upgrade pip
+          export PKG_CONFIG_PATH=/opt/homebrew/opt/mysql-client/lib/pkgconfig
+          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
           python -m pip install pex tox tox-gh
-        with:
-          PKG_CONFIG_PATH: /opt/homebrew/opt/mysql-client/lib/pkgconfig
-          MYSQLCLIENT_LDFLAGS: ${{pkg-config --libs mysqlclient}}
-          MYSQLCLIENT_CFLAGS: ${{pkg-config --cflags mysqlclient}}
+
       # You can test your matrix by printing the current Python version
       - name: Display Python version
         run: tox 
