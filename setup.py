@@ -14,8 +14,8 @@ except ImportError: # for pip <= 9.0.3
 cmdclass = {'install_data': install_data}
 data_files = [('/etc/MissingTVShows/', ['etc/tvshows.cfg', 'etc/logging.conf']), ('/usr/local/etc/bash_completion.d/', ['etc/missingTVShows-completion.bash'])]
 # parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_reqs = parse_requirements('requirements.txt', session=False)
-reqs = [str(ir.req) for ir in install_reqs]
+install_reqs = parse_requirements('requirements.txt', session="test")
+reqs = [str(ir.requirement) for ir in install_reqs]
 tests_require = ['nose']
 
 if sys.version_info[:2] == (2, 6):

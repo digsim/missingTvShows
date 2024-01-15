@@ -4,7 +4,7 @@ Installation
 From Download
 --------------
 
-The simplest way to use *adnitc* is to download the packaged *pex* file from `adnitc`_ and put it somewhere on the path like ``/usr/local/bin/``or ``/usr/local/share/bin``or ``~/.local/bin/`` and make it executable,
+The simplest way to use *missingtvshows* is to download the packaged *pex* file from `adnitc`_ and put it somewhere on the path like ``/usr/local/bin/``or ``/usr/local/share/bin``or ``~/.local/bin/`` and make it executable,
 
 From this point on, the binary can be executed by calling the *pex* file directly. There exist 3 variants of the *pex* file, depending on the availalbe python version. Choose either *adnitc26.pex*, *adnitc27.pex* or *adnitc35.pex* depending on what is availalbe on your system.
 
@@ -12,16 +12,16 @@ From this point on, the binary can be executed by calling the *pex* file directl
 
     Download files directly from here:
 
-    * :download:`adnitc26.pex <../dist/adnitc26.pex>`
-    * :download:`adnitc27.pex <../dist/adnitc27.pex>`
-    * :download:`adnitc35.pex <../dist/adnitc35.pex>`
+    * :download:`missingtvshows26.pex <../dist/missingtvshows26.pex>`
+    * :download:`missingtvshows27.pex <../dist/missingtvshows27.pex>`
+    * :download:`missingtvshows35.pex <../dist/missingtvshows35.pex>`
 
 From pip
 ---------
 
 Simply run::
 
-    sudo -H pip install adnitc
+    sudo -H pip install missingtvshows
 
 
 From Sources
@@ -35,7 +35,7 @@ From a terminal launch::
     python setup.py install --record files.txt
 
 This will compile and install the project to the pyhton libraries (eg. ``/usr/local/lib/python3.5/site-packages/adnitc-0.9-py3.5.egg``). Furthermore it will install a script in ``/usr/local/bin/``:
-* adnitc
+* missingtvshows
 
 Upon the first start a copy of a pristine application and logging configuration are created in the user's home directory ``~/.AdNITC/``. From this point on configuration files are read from this location. It is however possible to overwrite them either by placing a file with the same name (but prefixed with a dot eg. ``.logging.conf``) in the current working directory.
 
