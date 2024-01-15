@@ -115,7 +115,7 @@ class Main(object):
         if printWarningAndAbort:
             print('Created initial configuration files in '+ self.__USER_CONFIG_DIR)
             print('Please edit '+ self.__USER_CONFIG_DIR+'/'+self.__configName)
-            sys.exit(1)
+            sys.exit(0)
 
     def _exit_gracefully(self, signum, frame):
         """
