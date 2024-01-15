@@ -47,8 +47,8 @@ jobs:
       - name: Install tox and pex dependencies
         run: |
           python -m pip install --upgrade pip
-          ls /opt/homebrew/opt/mysql-client/lib/pkgconfig
-          export PKG_CONFIG_PATH=/opt/homebrew/opt/mysql-client/lib/pkgconfig
+          ls /usr/local/opt/mysql-client/lib/pkgconfig
+          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
           export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
           export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
           python -m pip install pex tox tox-gh
