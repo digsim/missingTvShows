@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import pkg_resources
+from importlib.metadata import version
 
-__version__ = pkg_resources.require("mtvs")[0].version
+__version__ = version("mtvs")
 

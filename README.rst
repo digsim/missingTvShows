@@ -44,18 +44,15 @@ Test Coverage Report
 
 Output from coverage test::
 
-    py35 runtests: commands[1] | coverage report
-    Name                              Stmts   Miss  Cover
-    -----------------------------------------------------
-    src/adnitc/__init__.py                2      0   100%
-    src/adnitc/itc/__init__.py            0      0   100%
-    src/adnitc/itc/calendar2itc.py      138     14    90%
-    src/adnitc/itc/calendarEvent.py      96      4    96%
-    src/adnitc/itc/itcClient.py          66     14    79%
-    src/adnitc/main/__init__.py           5      5     0%
-    src/adnitc/main/main.py              81     81     0%
-    src/adnitc/main/mainImpl.py         197    197     0%
-    src/adnitc/utils/__init__.py          0      0   100%
-    src/adnitc/utils/utilities.py        28     28     0%
-    -----------------------------------------------------
-    TOTAL                               613    343    44%
+    Name                               Stmts   Miss  Cover
+    ------------------------------------------------------
+    src/mtvs/Kodi/__init__.py              6      2    67%
+    src/mtvs/Kodi/missing_tvshows.py     224    180    20%
+    src/mtvs/__init__.py                   2      0   100%
+    src/mtvs/main/__init__.py              5      5     0%
+    src/mtvs/main/main.py                 81     81     0%
+    src/mtvs/main/mainImpl.py             78     78     0%
+    src/mtvs/utils/__init__.py             0      0   100%
+    src/mtvs/utils/utilities.py           52     52     0%
+    ------------------------------------------------------
+    TOTAL                                448    398    11%

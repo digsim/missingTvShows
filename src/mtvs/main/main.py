@@ -5,7 +5,7 @@ import shutil
 import signal
 import logging.config
 import pkgutil
-import pkg_resources
+from importlib.metadata import version
 import six
 import colorama
 import os
@@ -41,7 +41,7 @@ class Main(object):
         self.__configName = configName
         self.__logFileName = logFileName
         self._checkUserConfigFiles()
-        self.version = pkg_resources.require("mtvs")[0].version
+        self.version = version("mtvs")
 
         logging.basicConfig(level=logging.DEBUG)
         logging.config.fileConfig(
