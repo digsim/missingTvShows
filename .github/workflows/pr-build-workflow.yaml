@@ -76,7 +76,7 @@ jobs:
           tox -e package
 
       - name: Verify package is runnable
-        run: ./dist/missingtvshows_${RUNNER_OS}.pex
+        run: ./dist/missingtvshows_${{ RUNNER_OS }}.pex
 
       - name: Publish Artifacts
         uses: actions/upload-artifact@v4.1.0
