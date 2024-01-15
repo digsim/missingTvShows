@@ -21,7 +21,7 @@ class MainImpl(Main):
     def __init__(self):
         """Constructor"""
         self.__configDirName = "MissingTVShows"
-        self.__configName = 'tvshows.cfg'
+        self.__configName = 'tvshows.conf'
         self.__logFileName = 'tvshows.log'
 
         super(MainImpl, self).__init__(self.__configDirName, self.__configName, self.__logFileName)

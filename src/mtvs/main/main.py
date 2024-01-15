@@ -35,7 +35,7 @@ class Main(object):
         colorama.init()
         self.original_sigint = signal.getsignal(signal.SIGINT)
         self.__CONFIG_DIR = pkgutil.get_loader('mtvs').get_filename()
-        self.__CONFIG_DIR = self.__pathjoin(self.__CONFIG_DIR)
+        self.__CONFIG_DIR = os.path.dirname(self.__pathjoin(self.__CONFIG_DIR))
         self.__CONFIG_DIR = self.__pathjoin(self.__CONFIG_DIR, 'etc')
         self.__USER_CONFIG_DIR = expanduser('~/.'+configDirName)
         self.__configName = configName
@@ -115,7 +115,7 @@ class Main(object):
         if printWarningAndAbort:
             print('Created initial configuration files in '+ self.__USER_CONFIG_DIR)
             print('Please edit '+ self.__USER_CONFIG_DIR+'/'+self.__configName)
-            sys.exit(1)
+            sys.exit(0)
 
     def _exit_gracefully(self, signum, frame):
         """
