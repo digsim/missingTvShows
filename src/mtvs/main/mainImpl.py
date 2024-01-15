@@ -63,7 +63,7 @@ class MainImpl(Main):
         parser.add_argument('-v', '--version', action='version', version='%(prog)s '+self.version)
 
         subparsers = parser.add_subparsers(help='commands', dest='command')
-        sync_parser = subparsers.add_parser('sync', help='sync calendar entries to ITC')
+        sync_parser = subparsers.add_parser('sync', help='sync Kodi and TVDB')
 
         sync_parser.add_argument("-i", "--input", help="input sqlite database file", required=False, metavar='DATABASE')
         sync_parser.add_argument("-f", "--force-update", help="Force the update of the local TVDB Database", required=False,

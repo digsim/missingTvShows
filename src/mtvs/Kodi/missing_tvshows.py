@@ -30,7 +30,7 @@
 ###########################################################################
 
 from __future__ import unicode_literals
-from pytvdbapi import api
+import tvdb_v4_official
 from colorama import Fore, Back, Style
 from sqlalchemy import create_engine, Table, MetaData, func
 from sqlalchemy import Table, MetaData, Column, Integer, String, ForeignKey, REAL
@@ -137,10 +137,10 @@ class TVShows:
         metaData.bind = engine
 
         # Map XBMC tables to objects
-        self.__tvshow = Table('tvshow', metaData, autoload=True)
-        self.__seasons = Table('seasons', metaData, autoload=True)
-        self.__episodeview = Table('episode_view', metaData, autoload=True)
-        self.__uniqueid = Table('uniqueid', metaData, autoload=True)
+        self.__tvshow = Table('tvshow', metaData, autoload_with=engine)
+        self.__seasons = Table('seasons', metaData, autoload_with=engine)
+        self.__episodeview = Table('episode_view', metaData, autoload_with=engine)
+        self.__uniqueid = Table('uniqueid', metaData, autoload_with=engine)
 
     def _isSQLite3(self, filename):
         """
@@ -224,7 +224,7 @@ class TVShows:
         ).order_by(
             'Title'
         ).having(func.sum(episodeview.c.playCount) > 0)
-
+        self.__log.debug(str(query.statement.compile()))
         somewatched = query.all()
 
         self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
@@ -277,6 +277,7 @@ class TVShows:
         :param season: Season to look-up.
         :return: the number of aired episodes.
         """
+        self.__log.debug("getTotalNumberOfEpisodes: series_id: {:d} season: {:d}".format(series_id, season))
         engine = create_engine('sqlite:///' + self.__tvdbdatabse)
         sessionma = sessionmaker(bind=engine)
         session = sessionma()
@@ -293,8 +294,12 @@ class TVShows:
         sys.stdout.flush()
         self.__log.debug("Already done {:d} of {:d}".format(self.__alreadyCheckedSeriesSeason,  self.__totalOfSeriesSeason))
         if not localshow and not self.__forceLocal:
-            show = self.__db.get_series(series_id, "en" )
-            number_of_episodes = len(show[season])
+            season_type = 'default'
+            page = 0
+            lang = None
+            url = self.__db.url.construct('series', series_id, 'episodes/'+season_type, lang, page=page, season=season)
+            episodes = self.__db.request.make_request(url, None)
+            number_of_episodes = len(episodes['episodes'])
             next_update_time = now + self.__random.randint(0,  302400)
             self.__log.debug('Next update time is: '+str(next_update_time))
             newlocalshow = TVShow(seriesid=series_id, season=season, totalnumofepisodes=number_of_episodes, lastupdated=next_update_time)
@@ -303,8 +308,12 @@ class TVShows:
         elif not localshow and self.__forceLocal:
             number_of_episodes = -1
         elif self.__forceUpdate or ((now-localshow.lastupdated > 604800) and not self.__forceLocal):
-            show = self.__db.get_series(series_id, "en" )
-            number_of_episodes = len(show[season])
+            season_type = 'default'
+            page = 0
+            lang = None
+            url = self.__db.url.construct('series', series_id, 'episodes/'+season_type, lang, page=page, season=season)
+            episodes = self.__db.request.make_request(url, None)
+            number_of_episodes = len(episodes['episodes'])
             next_update_time = now + self.__random.randint(0,  302400)
             self.__log.debug('Next update time is: '+str(next_update_time))
             localshow.totalnumofepisodes = number_of_episodes
@@ -326,7 +335,7 @@ class TVShows:
         """
 
         if not self.__forceLocal:
-            self.__db = api.TVDB(self.__api_key)
+            self.__db = tvdb_v4_official.TVDB(self.__api_key)
         try:
             nonewatched,  somewatched = self._make_sql_queries()
         except ValueError as ve:
