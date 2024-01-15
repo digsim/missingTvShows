@@ -35,8 +35,8 @@ from colorama import Fore, Back, Style
 from sqlalchemy import create_engine, Table, MetaData, func
 from sqlalchemy import Table, MetaData, Column, Integer, String, ForeignKey, REAL
 from sqlalchemy.exc import ProgrammingError
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import select
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import mapper
 from os.path import expanduser, join
 from sqlalchemy.orm import sessionmaker
@@ -409,7 +409,9 @@ class TVShows:
 # Class representing one TVShow stored in
 # the local TVDB cache DB
 #################################################
-Base = declarative_base()
+# declarative base class
+class Base(DeclarativeBase):
+    pass
 class TVShow(Base):
     __tablename__ = 'THETVDB'
 
