@@ -60,3 +60,6 @@ jobs:
           export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
           export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
           tox 
+      
+      - name: Verify package is runnable
+        run: ./dist/missingtvshows35.pex
