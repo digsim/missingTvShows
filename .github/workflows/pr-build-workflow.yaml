@@ -24,8 +24,6 @@ jobs:
           - "3.10"
           - "3.9"
           - "3.8"
-          - "3.4"
-          - "2.7"
         os:
           - ubuntu-latest
           - macos-latest
@@ -34,6 +32,15 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+        if: RUNNER_OS == "macOS"
+      - name: Install prerequisites
+        run: |
+          if [ "$RUNNER_OS" == "macOS" ]; then
+            brew install mysql-client
+          fi
       - name: Setup python for test ${{ matrix.py }}
         uses: actions/setup-python@v4
         with:
@@ -42,6 +49,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pex tox tox-gh
+        with:
+          PKG_CONFIG_PATH: /opt/homebrew/opt/mysql-client/lib/pkgconfig
+          MYSQLCLIENT_LDFLAGS: ${{pkg-config --libs mysqlclient}}
+          MYSQLCLIENT_CFLAGS: ${{pkg-config --cflags mysqlclient}}
       # You can test your matrix by printing the current Python version
       - name: Display Python version
         run: tox 
