@@ -78,8 +78,11 @@ jobs:
       - name: Verify package is runnable
         run: ./dist/missingtvshows_${{ runner.os }}.pex
 
-      - name: Publish Artifacts
-        uses: actions/upload-artifact@v4.1.0
-        with: 
-          name: assets-for-download
-          path: dist
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .tox/docs/tmp/html/
+          force_orphan: true
