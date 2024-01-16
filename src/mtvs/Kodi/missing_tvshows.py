@@ -30,7 +30,7 @@
 ###########################################################################
 
 from __future__ import unicode_literals
-import tvdb_v4_official
+import tvdb_v4_official # type: ignore
 from colorama import Fore, Back, Style
 from sqlalchemy import create_engine, Table, MetaData, func
 from sqlalchemy import Table, MetaData, Column, Integer, String, ForeignKey, REAL
@@ -40,24 +40,15 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import mapper
 from os.path import expanduser, join
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists
+from sqlalchemy_utils import database_exists # type: ignore
 import sqlite3
-import sys, os
-import shutil
+import sys
 import logging
 import logging.config
-import argparse
 import time
 import math
 import random
-import signal
-import csv
 import sqlite3
-if float(sys.version[:3])<3.0:
-    import ConfigParser
-else:
-    import configparser as ConfigParser
-
 
 
 
@@ -423,5 +414,5 @@ class TVShow(Base):
 
 
 if __name__ == "__main__":
-    sms = TVShows()
-    sms.getArguments(sys.argv[1:])
+    sms = TVShows('./tvdbdb.db', 'api-key', 'sqlite', '/test.db', '', '', '', '')
+

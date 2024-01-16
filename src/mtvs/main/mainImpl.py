@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import argparse
-import getpass
 import logging
 import sys
 import random
@@ -9,11 +8,6 @@ from os.path import join
 from .main import Main
 from mtvs.Kodi.missing_tvshows import TVShows
 from mtvs.utils import utilities
-
-if sys.version_info[0:2] <= (2, 6):
-    import requests
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class MainImpl(Main):
