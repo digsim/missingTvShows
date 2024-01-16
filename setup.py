@@ -2,31 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 from setuptools import setup, find_packages
 from distutils.command.install_data import install_data
-try: # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
-    from pip.req import parse_requirements
-
-
-cmdclass = {'install_data': install_data}
-data_files = [('/etc/MissingTVShows/', ['etc/tvshows.cfg', 'etc/logging.conf']), ('/usr/local/etc/bash_completion.d/', ['etc/missingTVShows-completion.bash'])]
-# parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_reqs = parse_requirements('requirements.txt', session="test")
-reqs = [str(ir.requirement) for ir in install_reqs]
-tests_require = ['nose']
-
-if sys.version_info[:2] == (2, 6):
-    # Python unittest2 only needed for Python 2.6
-    tests_require.append('unittest2')
-    # OrderedDict was added in 2.7
-    reqs.append('ordereddict')
-
-
-
-
+#from pip._internal.req import parse_requirements
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -34,6 +12,13 @@ if sys.version_info[:2] == (2, 6):
 # string in below ...
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+cmdclass = {'install_data': install_data}
+data_files = [('/etc/MissingTVShows/', ['etc/tvshows.conf', 'etc/logging.conf']), ('/usr/local/etc/bash_completion.d/', ['etc/missingTVShows-completion.bash'])]
+# install_reqs = parse_requirements('requirements.txt', session="test")
+# reqs = [str(ir.requirement) for ir in install_reqs]
+reqs = read('requirements.txt').splitlines()
+tests_require = ['nose']
 
 
 setup(
@@ -68,13 +53,10 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
         'Operating System :: Microsoft :: Windows',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
     platforms='any',
 )

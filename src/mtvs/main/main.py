@@ -11,15 +11,9 @@ import colorama
 import os
 from os.path import join, expanduser
 
-if float(sys.version[:3])<3.0:
-    import ConfigParser
-else:
-    import configparser as ConfigParser
-try:
-    from subprocess import DEVNULL # py3k
-except ImportError:
-    import os
-    DEVNULL = open(os.devnull, 'wb')
+import configparser
+from subprocess import DEVNULL
+
 
 
 class Main(object):
@@ -49,11 +43,8 @@ class Main(object):
             defaults={'logfilename': self.__pathjoin(self.__USER_CONFIG_DIR, self.__logFileName)})
         self.__log = logging.getLogger('Tube4Droid')
 
-        # Configure several elements depending on config file
-        if float(sys.version[:3])<3.2:
-            self.config = ConfigParser.SafeConfigParser()
-        else:
-            self.config = ConfigParser.ConfigParser()
+        
+        self.config = configparser.ConfigParser()            
         self.config.read([self.__pathjoin(self.__CONFIG_DIR, self.__configName), self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName), self.__configName])
 
     def main(self):
