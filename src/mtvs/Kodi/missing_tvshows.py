@@ -30,33 +30,36 @@
 ###########################################################################
 
 from __future__ import unicode_literals
-import tvdb_v4_official # type: ignore
-from colorama import Fore, Back, Style
-from sqlalchemy import create_engine, Table, MetaData, func
-from sqlalchemy import Table, MetaData, Column, Integer, String, ForeignKey, REAL
-from sqlalchemy.exc import ProgrammingError
-from sqlalchemy.sql import select
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import mapper
-from os.path import expanduser, join
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, REAL, func  # type: ignore
+from sqlalchemy.orm import DeclarativeBase  # type: ignore
+from sqlalchemy.exc import ProgrammingError  # type: ignore
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists # type: ignore
-import sqlite3
-import sys
+from sqlalchemy_utils import database_exists  # type: ignore
 import logging
 import logging.config
-import time
 import math
 import random
 import sqlite3
+import sys
+import time
+import tvdb_v4_official  # type: ignore
 
 
-
-class TVShows:
-    def __init__(self, tvdbdatabase, apikey, dbdialect, database, dbuser, dbpasswd, dbhost, dbport):
+class TVShows(object):
+    def __init__(
+        self,
+        tvdbdatabase,
+        apikey,
+        dbdialect,
+        database,
+        dbuser,
+        dbpasswd,
+        dbhost,
+        dbport,
+    ):
         """Do some initialization stuff"""
 
-        self.__log = logging.getLogger('Tube4Droid')
+        self.__log = logging.getLogger("Tube4Droid")
         self.__forceUpdate = False
         self.__forceLocal = False
         self.__produceCVS = False
@@ -69,12 +72,11 @@ class TVShows:
         # Database stuff from config file
         self.__dbdialect = dbdialect
         self.__database = database
-        self.__dbuser =  dbuser
-        self.__dbpasswd =  dbpasswd
-        self.__dbhostname =  dbhost
-        self.__dbport =  dbport
-        self.__log.debug('Database '+self.__database)
-
+        self.__dbuser = dbuser
+        self.__dbpasswd = dbpasswd
+        self.__dbhostname = dbhost
+        self.__dbport = dbport
+        self.__log.debug("Database " + self.__database)
 
         self._checkLocalTVDBDatabase()
 
@@ -92,7 +94,8 @@ class TVShows:
         if not cur.fetchall():
             cur = con.cursor()
             cur.execute(
-                '''CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)''')
+                """CREATE TABLE THETVDB (id INTEGER PRIMARY KEY, seriesid INTEGER, season INTEGER, totalnumofepisodes INTEGER, lastupdated REAL)"""
+            )
             con.commit()
         con.close()
 
@@ -103,24 +106,26 @@ class TVShows:
 
         :return: Nothing
         """
-        db_connection_string = ''
+        db_connection_string = ""
         try:
-            if self.__dbdialect == 'mysql':
+            if self.__dbdialect == "mysql":
                 db_connection_string = 'mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database
-            elif self.__dbdialect == 'sqlite':
-                db_connection_string = 'sqlite:///' + self.__database
+            elif self.__dbdialect == "sqlite":
+                db_connection_string = "sqlite:///" + self.__database
                 if not self._isSQLite3(self.__database):
-                    raise ValueError(self.__database+" is not a valid sqlite database")
+                    raise ValueError(
+                        self.__database + " is not a valid sqlite database"
+                    )
 
             if not database_exists(db_connection_string):
                 raise ValueError("Database does not exist")
             engine = create_engine(db_connection_string)
 
-            self.__log.debug('Connected to database ' + self.__database)
+            self.__log.debug("Connected to database " + self.__database)
 
         except ProgrammingError:
-            self.__log.error('Connection to database ' + self.__database + ' failed')
-            raise ValueError("Could not connect to "+db_connection_string)
+            self.__log.error("Connection to database " + self.__database + " failed")
+            raise ValueError("Could not connect to " + db_connection_string)
 
         session = sessionmaker(bind=engine)
         self.__session = session()
@@ -128,10 +133,10 @@ class TVShows:
         metaData.bind = engine
 
         # Map XBMC tables to objects
-        self.__tvshow = Table('tvshow', metaData, autoload_with=engine)
-        self.__seasons = Table('seasons', metaData, autoload_with=engine)
-        self.__episodeview = Table('episode_view', metaData, autoload_with=engine)
-        self.__uniqueid = Table('uniqueid', metaData, autoload_with=engine)
+        self.__tvshow = Table("tvshow", metaData, autoload_with=engine)
+        self.__seasons = Table("seasons", metaData, autoload_with=engine)
+        self.__episodeview = Table("episode_view", metaData, autoload_with=engine)
+        self.__uniqueid = Table("uniqueid", metaData, autoload_with=engine)
 
     def _isSQLite3(self, filename):
         """
@@ -145,14 +150,13 @@ class TVShows:
 
         if not isfile(filename):
             return False
-        if getsize(filename) < 100: # SQLite database file header is 100 bytes
+        if getsize(filename) < 100:  # SQLite database file header is 100 bytes
             return False
 
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             header = f.read(100)
 
-        return header[0:16] == b'SQLite format 3\000'
-
+        return header[0:16] == b"SQLite format 3\000"
 
     def _make_sql_queries(self):
         """
@@ -172,54 +176,50 @@ class TVShows:
         episodeview = self.__episodeview
         uniqueid = self.__uniqueid
 
-        query = session.query(
-            tvshow.c.c00.label('Title'),
-            episodeview.c.c12.label('Season'),
-            func.count().label('Episodes'),
-            uniqueid.c.value.label('SeriesID'),
-            episodeview.c.idSeason.label('SeasoniD'),
-            func.sum(episodeview.c.playCount).label('Played')
-        ).select_from(
-            episodeview.join(
-                seasons, seasons.c.idSeason == episodeview.c.idSeason
-            ).join(
-                tvshow, tvshow.c.idShow == seasons.c.idShow
-            ).join(
-                uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12
+        query = (
+            session.query(
+                tvshow.c.c00.label("Title"),
+                episodeview.c.c12.label("Season"),
+                func.count().label("Episodes"),
+                uniqueid.c.value.label("SeriesID"),
+                episodeview.c.idSeason.label("SeasoniD"),
+                func.sum(episodeview.c.playCount).label("Played"),
             )
-        ).group_by(
-            'Title', 'Season'
-        ).order_by(
-            'Title'
-        ).having(func.sum(episodeview.c.playCount) == None)
+            .select_from(
+                episodeview.join(seasons, seasons.c.idSeason == episodeview.c.idSeason)
+                .join(tvshow, tvshow.c.idShow == seasons.c.idShow)
+                .join(uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12)
+            )
+            .group_by("Title", "Season")
+            .order_by("Title")
+            .having(func.sum(episodeview.c.playCount) == None)  # noqa: E711
+        )
 
         nonewatched = query.all()
 
-        query = session.query(
-            tvshow.c.c00.label('Title'),
-            episodeview.c.c12.label('Season'),
-            func.count().label('Episodes'),
-            uniqueid.c.value.label('SeriesID'),
-            episodeview.c.idSeason.label('SeasoniD'),
-            func.sum(episodeview.c.playCount).label('Played')
-        ).select_from(
-            episodeview.join(
-                seasons, seasons.c.idSeason == episodeview.c.idSeason
-            ).join(
-                tvshow, tvshow.c.idShow == seasons.c.idShow
-            ).join(
-                uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12
+        query = (
+            session.query(
+                tvshow.c.c00.label("Title"),
+                episodeview.c.c12.label("Season"),
+                func.count().label("Episodes"),
+                uniqueid.c.value.label("SeriesID"),
+                episodeview.c.idSeason.label("SeasoniD"),
+                func.sum(episodeview.c.playCount).label("Played"),
             )
-        ).group_by(
-            'Title', 'Season'
-        ).order_by(
-            'Title'
-        ).having(func.sum(episodeview.c.playCount) > 0)
+            .select_from(
+                episodeview.join(seasons, seasons.c.idSeason == episodeview.c.idSeason)
+                .join(tvshow, tvshow.c.idShow == seasons.c.idShow)
+                .join(uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12)
+            )
+            .group_by("Title", "Season")
+            .order_by("Title")
+            .having(func.sum(episodeview.c.playCount) > 0)
+        )
         self.__log.debug(str(query.statement.compile()))
         somewatched = query.all()
 
         self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
-        return nonewatched,  somewatched
+        return nonewatched, somewatched
 
     def _get_Episodes(self, season, seriesId):
         """
@@ -236,29 +236,26 @@ class TVShows:
         episodeview = self.__episodeview
         uniqueid = self.__uniqueid
 
-        query = session.query(
-            tvshow.c.c00.label('Title'),
-            episodeview.c.c12.label('Season'),
-            episodeview.c.c13.label('Episode'),
-            uniqueid.c.value.label('SeriesID')
-        ).select_from(
-            episodeview.join(
-                seasons, seasons.c.idSeason == episodeview.c.idSeason
-            ).join(
-                tvshow, tvshow.c.idShow == seasons.c.idShow
-            ).join(
-                uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12
+        query = (
+            session.query(
+                tvshow.c.c00.label("Title"),
+                episodeview.c.c12.label("Season"),
+                episodeview.c.c13.label("Episode"),
+                uniqueid.c.value.label("SeriesID"),
             )
-        ).filter(
-            episodeview.c.c12 == season, uniqueid.c.value == seriesId
-        ).order_by(
-            'Title', 'Season', 'Episode')
+            .select_from(
+                episodeview.join(seasons, seasons.c.idSeason == episodeview.c.idSeason)
+                .join(tvshow, tvshow.c.idShow == seasons.c.idShow)
+                .join(uniqueid, uniqueid.c.uniqueid_id == tvshow.c.c12)
+            )
+            .filter(episodeview.c.c12 == season, uniqueid.c.value == seriesId)
+            .order_by("Title", "Season", "Episode")
+        )
 
         episodes = query.all()
         return episodes
 
-
-    def getTotalNumberOfEpisodes(self,  series_id,  season):
+    def getTotalNumberOfEpisodes(self, series_id, season):
         """
         Queries to number of aired episodes according to thetvdb.com. To save bandwith, we first check in the local
         thetvdb cache which is stored in a Sqlite DB. If we have a cache miss, we query thetvdb directly and store
@@ -268,45 +265,76 @@ class TVShows:
         :param season: Season to look-up.
         :return: the number of aired episodes.
         """
-        self.__log.debug("getTotalNumberOfEpisodes: series_id: {:d} season: {:d}".format(series_id, season))
-        engine = create_engine('sqlite:///' + self.__tvdbdatabse)
+        self.__log.debug(
+            "getTotalNumberOfEpisodes: series_id: {:d} season: {:d}".format(
+                series_id, season
+            )
+        )
+        engine = create_engine("sqlite:///" + self.__tvdbdatabse)
         sessionma = sessionmaker(bind=engine)
         session = sessionma()
 
-        query = session.query(TVShow).filter_by(seriesid=series_id).filter_by(season=season)
+        query = (
+            session.query(TVShow).filter_by(seriesid=series_id).filter_by(season=season)
+        )
         localshow = query.first()
 
         number_of_episodes = 0
         now = time.mktime(time.localtime())
         self.__alreadyCheckedSeriesSeason += 1
-        progress = self.__alreadyCheckedSeriesSeason*100/self.__totalOfSeriesSeason
-        sys.stdout.write('\r')
-        sys.stdout.write("[%-100s] %d%%" % ('='*int(math.ceil(progress)), progress ))
+        progress = self.__alreadyCheckedSeriesSeason * 100 / self.__totalOfSeriesSeason
+        sys.stdout.write("\r")
+        sys.stdout.write("[%-100s] %d%%" % ("=" * int(math.ceil(progress)), progress))
         sys.stdout.flush()
-        self.__log.debug("Already done {:d} of {:d}".format(self.__alreadyCheckedSeriesSeason,  self.__totalOfSeriesSeason))
+        self.__log.debug(
+            "Already done {:d} of {:d}".format(
+                self.__alreadyCheckedSeriesSeason, self.__totalOfSeriesSeason
+            )
+        )
         if not localshow and not self.__forceLocal:
-            season_type = 'default'
+            season_type = "default"
             page = 0
             lang = None
-            url = self.__db.url.construct('series', series_id, 'episodes/'+season_type, lang, page=page, season=season)
+            url = self.__db.url.construct(
+                "series",
+                series_id,
+                "episodes/" + season_type,
+                lang,
+                page=page,
+                season=season,
+            )
             episodes = self.__db.request.make_request(url, None)
-            number_of_episodes = len(episodes['episodes'])
-            next_update_time = now + self.__random.randint(0,  302400)
-            self.__log.debug('Next update time is: '+str(next_update_time))
-            newlocalshow = TVShow(seriesid=series_id, season=season, totalnumofepisodes=number_of_episodes, lastupdated=next_update_time)
+            number_of_episodes = len(episodes["episodes"])
+            next_update_time = now + self.__random.randint(0, 302400)
+            self.__log.debug("Next update time is: " + str(next_update_time))
+            newlocalshow = TVShow(
+                seriesid=series_id,
+                season=season,
+                totalnumofepisodes=number_of_episodes,
+                lastupdated=next_update_time,
+            )
             session.add(newlocalshow)
             session.commit()
         elif not localshow and self.__forceLocal:
             number_of_episodes = -1
-        elif self.__forceUpdate or ((now-localshow.lastupdated > 604800) and not self.__forceLocal):
-            season_type = 'default'
+        elif self.__forceUpdate or (
+            (now - localshow.lastupdated > 604800) and not self.__forceLocal
+        ):
+            season_type = "default"
             page = 0
             lang = None
-            url = self.__db.url.construct('series', series_id, 'episodes/'+season_type, lang, page=page, season=season)
+            url = self.__db.url.construct(
+                "series",
+                series_id,
+                "episodes/" + season_type,
+                lang,
+                page=page,
+                season=season,
+            )
             episodes = self.__db.request.make_request(url, None)
-            number_of_episodes = len(episodes['episodes'])
-            next_update_time = now + self.__random.randint(0,  302400)
-            self.__log.debug('Next update time is: '+str(next_update_time))
+            number_of_episodes = len(episodes["episodes"])
+            next_update_time = now + self.__random.randint(0, 302400)
+            self.__log.debug("Next update time is: " + str(next_update_time))
             localshow.totalnumofepisodes = number_of_episodes
             localshow.lastupdated = next_update_time
             session.commit()
@@ -328,72 +356,132 @@ class TVShows:
         if not self.__forceLocal:
             self.__db = tvdb_v4_official.TVDB(self.__api_key)
         try:
-            nonewatched,  somewatched = self._make_sql_queries()
+            nonewatched, somewatched = self._make_sql_queries()
         except ValueError as ve:
-            self.__log.error('Could not query database: {0}'.format(str(ve)))
+            self.__log.error("Could not query database: {0}".format(str(ve)))
             sys.exit(-5)
 
         unwatched_finished_shows = []
-        unwatched_unfinished_shows =  []
+        unwatched_unfinished_shows = []
         watchedsome_unfinished_shows = []
         watchedsome_finished_shows = []
 
-
         for row in nonewatched:
-            if int(row[1]) == 0: # Don't take into consideration Season 0
+            if int(row[1]) == 0:  # Don't take into consideration Season 0
                 continue
-            rowTitle = row[0]#.encode('utf-8')
+            rowTitle = row[0]  # .encode('utf-8')
             rowId = row[3]
             rowSeason = row[1]
             rowDownloaded = row[2]
-            self.__log.debug('Currently treating series {:s} with id: {:s} and Season {:s}'.format(rowTitle,  rowId,  rowSeason))
-            number_of_episodes = self.getTotalNumberOfEpisodes(int(rowId),  int(rowSeason))
-            full_episodes = range(1, number_of_episodes+1)
-            self.__log.debug('{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes'.format( rowTitle,  rowSeason,  rowDownloaded,  number_of_episodes))
+            self.__log.debug(
+                "Currently treating series {:s} with id: {:s} and Season {:s}".format(
+                    rowTitle, rowId, rowSeason
+                )
+            )
+            number_of_episodes = self.getTotalNumberOfEpisodes(
+                int(rowId), int(rowSeason)
+            )
+            full_episodes = range(1, number_of_episodes + 1)
+            self.__log.debug(
+                "{:35s}: Season {:2s} and has {:2d}/{:2d} Episodes".format(
+                    rowTitle, rowSeason, rowDownloaded, number_of_episodes
+                )
+            )
 
-            if int(number_of_episodes) != int(rowDownloaded): # If number of local Episodes is different from TheTVDB
+            if int(number_of_episodes) != int(
+                rowDownloaded
+            ):  # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                episodes = self._get_Episodes(rowSeason,rowId)
+                episodes = self._get_Episodes(rowSeason, rowId)
                 present_episodes = []
                 for episode in episodes:
                     present_episodes.append(episode[2])
-                present_episodes = map(int,  present_episodes)
-                self.__log.debug('Present episodes '+str(present_episodes))
+                present_episodes = map(int, present_episodes)
+                self.__log.debug("Present episodes " + str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
-                self.__log.debug('Missing episodes: '+str(missing_episodes)[1:-1])
-                unwatched_unfinished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':0,   'MissingEpisodes':str(missing_episodes)[1:-1]})
+                self.__log.debug("Missing episodes: " + str(missing_episodes)[1:-1])
+                unwatched_unfinished_shows.append(
+                    {
+                        "Title": rowTitle,
+                        "SeasonId": rowId,
+                        "Season": rowSeason,
+                        "NbDownloaded": rowDownloaded,
+                        "NbAvailable": number_of_episodes,
+                        "NbWatched": 0,
+                        "MissingEpisodes": str(missing_episodes)[1:-1],
+                    }
+                )
             else:
-                unwatched_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':0,  'MissingEpisodes':0})
+                unwatched_finished_shows.append(
+                    {
+                        "Title": rowTitle,
+                        "SeasonId": rowId,
+                        "Season": rowSeason,
+                        "NbDownloaded": rowDownloaded,
+                        "NbAvailable": number_of_episodes,
+                        "NbWatched": 0,
+                        "MissingEpisodes": 0,
+                    }
+                )
 
         for row in somewatched:
-            if int(row[1]) == 0: # Don't take into consideration Season 0
+            if int(row[1]) == 0:  # Don't take into consideration Season 0
                 continue
-            rowTitle = row[0]#.encode('utf-8')
+            rowTitle = row[0]  # .encode('utf-8')
             rowId = row[3]
             rowSeason = row[1]
             rowDownloaded = row[2]
             rowWatched = row[5]
-            self.__log.debug('Currently treating series {:s} with id: {:s} and Season {:s}'.format(rowTitle,  rowId,  rowSeason))
-            number_of_episodes = self.getTotalNumberOfEpisodes(int(rowId),  int(rowSeason))
-            full_episodes = range(1, number_of_episodes+1)
-            if int(number_of_episodes) != int(rowDownloaded): # If number of local Episodes is different from TheTVDB
+            self.__log.debug(
+                "Currently treating series {:s} with id: {:s} and Season {:s}".format(
+                    rowTitle, rowId, rowSeason
+                )
+            )
+            number_of_episodes = self.getTotalNumberOfEpisodes(
+                int(rowId), int(rowSeason)
+            )
+            full_episodes = range(1, number_of_episodes + 1)
+            if int(number_of_episodes) != int(
+                rowDownloaded
+            ):  # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                episodes = self._get_Episodes(rowSeason,rowId)
+                episodes = self._get_Episodes(rowSeason, rowId)
                 present_episodes = []
                 for episode in episodes:
                     present_episodes.append(episode[2])
-                present_episodes = map(int,  present_episodes)
-                self.__log.debug('Present episodes: '+str(present_episodes))
+                present_episodes = map(int, present_episodes)
+                self.__log.debug("Present episodes: " + str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
-                self.__log.debug('Missing episodes: '+str(missing_episodes)[1:-1])
-                watchedsome_unfinished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes, 'NbWatched':rowWatched,  'MissingEpisodes':str(missing_episodes)[1:-1]})
+                self.__log.debug("Missing episodes: " + str(missing_episodes)[1:-1])
+                watchedsome_unfinished_shows.append(
+                    {
+                        "Title": rowTitle,
+                        "SeasonId": rowId,
+                        "Season": rowSeason,
+                        "NbDownloaded": rowDownloaded,
+                        "NbAvailable": number_of_episodes,
+                        "NbWatched": rowWatched,
+                        "MissingEpisodes": str(missing_episodes)[1:-1],
+                    }
+                )
             elif int(number_of_episodes) > rowWatched:
-                watchedsome_finished_shows.append({'Title':rowTitle,  'SeasonId':rowId,  'Season':rowSeason,  'NbDownloaded':rowDownloaded,  'NbAvailable':number_of_episodes,  'NbWatched':rowWatched, 'MissingEpisodes':0})
-        return unwatched_finished_shows,  unwatched_unfinished_shows,  watchedsome_unfinished_shows,  watchedsome_finished_shows
-
-
-
-
+                watchedsome_finished_shows.append(
+                    {
+                        "Title": rowTitle,
+                        "SeasonId": rowId,
+                        "Season": rowSeason,
+                        "NbDownloaded": rowDownloaded,
+                        "NbAvailable": number_of_episodes,
+                        "NbWatched": rowWatched,
+                        "MissingEpisodes": 0,
+                    }
+                )
+        return (
+            unwatched_finished_shows,
+            unwatched_unfinished_shows,
+            watchedsome_unfinished_shows,
+            watchedsome_finished_shows,
+        )
 
 
 #################################################
@@ -403,10 +491,12 @@ class TVShows:
 # declarative base class
 class Base(DeclarativeBase):
     pass
-class TVShow(Base):
-    __tablename__ = 'THETVDB'
 
-    id = Column(Integer, primary_key=True, autoincrement='ignore_fk')
+
+class TVShow(Base):
+    __tablename__ = "THETVDB"
+
+    id = Column(Integer, primary_key=True, autoincrement="ignore_fk")
     seriesid = Column(Integer)
     season = Column(Integer)
     totalnumofepisodes = Column(Integer)
@@ -414,5 +504,4 @@ class TVShow(Base):
 
 
 if __name__ == "__main__":
-    sms = TVShows('./tvdbdb.db', 'api-key', 'sqlite', '/test.db', '', '', '', '')
-
+    sms = TVShows("./tvdbdb.db", "api-key", "sqlite", "/test.db", "", "", "", "")

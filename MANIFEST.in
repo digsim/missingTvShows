@@ -9,6 +9,7 @@ recursive-include src *.bash
 recursive-include src *.conf
 recursive-include src *.ics
 recursive-include src *.py
+recursive-include scripts *.py
 
 include *.rst *.md tox.ini
 include requirements.txt
