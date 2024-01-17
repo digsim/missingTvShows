@@ -6,18 +6,14 @@ import signal
 import logging.config
 import pkgutil
 from importlib.metadata import version
-import six
 import colorama
 import os
-from os.path import join, expanduser
+from os.path import expanduser
 
 import configparser
-from subprocess import DEVNULL
-
 
 
 class Main(object):
-
     def __init__(self, configDirName, configName, logFileName):
         """
         Constructor.
@@ -28,10 +24,10 @@ class Main(object):
         """
         colorama.init()
         self.original_sigint = signal.getsignal(signal.SIGINT)
-        self.__CONFIG_DIR = pkgutil.get_loader('mtvs').get_filename()
+        self.__CONFIG_DIR = pkgutil.get_loader("mtvs").get_filename()
         self.__CONFIG_DIR = os.path.dirname(self.__pathjoin(self.__CONFIG_DIR))
-        self.__CONFIG_DIR = self.__pathjoin(self.__CONFIG_DIR, 'etc')
-        self.__USER_CONFIG_DIR = expanduser('~/.'+configDirName)
+        self.__CONFIG_DIR = self.__pathjoin(self.__CONFIG_DIR, "etc")
+        self.__USER_CONFIG_DIR = expanduser("~/." + configDirName)
         self.__configName = configName
         self.__logFileName = logFileName
         self._checkUserConfigFiles()
@@ -39,13 +35,27 @@ class Main(object):
 
         logging.basicConfig(level=logging.DEBUG)
         logging.config.fileConfig(
-            [self.__pathjoin(self.__CONFIG_DIR, 'logging.conf'), self.__pathjoin(self.__USER_CONFIG_DIR, 'logging.conf'), 'logging.conf'],
-            defaults={'logfilename': self.__pathjoin(self.__USER_CONFIG_DIR, self.__logFileName)})
-        self.__log = logging.getLogger('Tube4Droid')
+            [
+                self.__pathjoin(self.__CONFIG_DIR, "logging.conf"),
+                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf"),
+                "logging.conf",
+            ],
+            defaults={
+                "logfilename": self.__pathjoin(
+                    self.__USER_CONFIG_DIR, self.__logFileName
+                )
+            },
+        )
+        self.__log = logging.getLogger("Tube4Droid")
 
-        
-        self.config = configparser.ConfigParser()            
-        self.config.read([self.__pathjoin(self.__CONFIG_DIR, self.__configName), self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName), self.__configName])
+        self.config = configparser.ConfigParser()
+        self.config.read(
+            [
+                self.__pathjoin(self.__CONFIG_DIR, self.__configName),
+                self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName),
+                self.__configName,
+            ]
+        )
 
     def main(self):
         """
@@ -79,7 +89,7 @@ class Main(object):
 
         :return: void.
         """
-        self.__log.debug('Using Python '+sys.version[:3])
+        self.__log.debug("Using Python " + sys.version[:3])
 
     def _checkUserConfigFiles(self):
         """
@@ -88,24 +98,32 @@ class Main(object):
 
         :return: void.
         """
-        printWarningAndAbort=False
+        printWarningAndAbort = False
         if not os.path.exists(self.__CONFIG_DIR):
-            print('Could not find initial configuration skeletons. Aborting')
+            print("Could not find initial configuration skeletons. Aborting")
             return
         if not os.path.exists(self.__USER_CONFIG_DIR):
-            print('User config dir does not exist. Creating '+self.__USER_CONFIG_DIR)
+            print("User config dir does not exist. Creating " + self.__USER_CONFIG_DIR)
             os.mkdir(self.__USER_CONFIG_DIR)
-            printWarningAndAbort=True
-        if not os.path.exists(self.__pathjoin(self.__USER_CONFIG_DIR, 'logging.conf')):
-            print('Copying default logging conf to '+self.__USER_CONFIG_DIR)
-            shutil.copy(self.__pathjoin(self.__CONFIG_DIR, 'logging.conf'), self.__pathjoin(self.__USER_CONFIG_DIR, 'logging.conf'))
-        if not os.path.exists(self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName)):
-            print('No application specific config file found. Creating '+self.__configName+' in '+self.__USER_CONFIG_DIR )
-            shutil.copy(self.__pathjoin(self.__CONFIG_DIR, self.__configName), self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName))
+            printWarningAndAbort = True
+        if not os.path.exists(self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf")):
+            print("Copying default logging conf to " + self.__USER_CONFIG_DIR)
+            shutil.copy(
+                self.__pathjoin(self.__CONFIG_DIR, "logging.conf"),
+                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf"),
+            )
+        if not os.path.exists(
+            self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName)
+        ):
+            print('No application specific config file found. Creating ' + self.__configName + ' in ' + self.__USER_CONFIG_DIR)
+            shutil.copy(
+                self.__pathjoin(self.__CONFIG_DIR, self.__configName),
+                self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName),
+            )
             printWarningAndAbort = True
         if printWarningAndAbort:
-            print('Created initial configuration files in '+ self.__USER_CONFIG_DIR)
-            print('Please edit '+ self.__USER_CONFIG_DIR+'/'+self.__configName)
+            print("Created initial configuration files in " + self.__USER_CONFIG_DIR)
+            print("Please edit " + self.__USER_CONFIG_DIR + "/" + self.__configName)
             sys.exit(0)
 
     def _exit_gracefully(self, signum, frame):
@@ -120,21 +138,18 @@ class Main(object):
         # restore the original signal handler as otherwise evil things will happen
         # in raw_input when CTRL+C is pressed, and our signal handler is not re-entrant
         signal.signal(signal.SIGINT, self.original_sigint)
-        if six.PY2:
-            real_raw_input = raw_input
-        else:
-            real_raw_input = input
+
+        real_raw_input = input
 
         try:
-            if real_raw_input('\nReally quit? (y/n)> ').lower().startswith('y'):
+            if real_raw_input("\nReally quit? (y/n)> ").lower().startswith("y"):
                 sys.exit(1)
         except KeyboardInterrupt:
-            print('Ok ok, quitting')
+            print("Ok ok, quitting")
             sys.exit(1)
 
         # restore the exit gracefully handler here
         signal.signal(signal.SIGINT, self._exit_gracefully)
 
     def __pathjoin(*pathes):
-        return os.path.join(*pathes[1:]).replace('\\', '/')
-
+        return os.path.join(*pathes[1:]).replace("\\", "/")

@@ -1,0 +1,51 @@
+[project]
+name = "mtvs"
+authors = [
+    {name = "Andreas Ruppen", email = "andreas.ruppen@gmail.com"},
+]
+description = "Manages Kodi TVShows"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = {file = "LICENSE.rst"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: Utilities",
+]
+version = "1.2.2.dev0"
+dynamic = ["dependencies"]
+
+[metadata]
+long_description = "file: README.md"
+long_description_content_type = "text/markdown"
+url = "https://github.com/digsim/missingTvShows"
+
+[project.urls]
+"Changelog" = "https://github.com/digsim/missingTvShows/blob/main/CHANGES.rst"
+"Source" = "https://github.com/digsim/missingTvShows"
+"Tracker" = "https://github.com/digsim/missingTvShows/issues"
+
+[project.scripts]
+missingTvShows = "mtvs.main.__main__:cli"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools]
+package-data = {'mtvs.etc'= ['logging.conf', 'tvshows.conf', 'missingTVShows-completion.bash']}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+pythonpath = "src"
