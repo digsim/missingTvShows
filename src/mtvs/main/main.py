@@ -31,7 +31,7 @@ class Main(object):
         self.__configName = configName
         self.__logFileName = logFileName
         self._checkUserConfigFiles()
-        self.version = version("mtvs")
+        self.version = version("missingTvShows")
 
         logging.basicConfig(level=logging.DEBUG)
         logging.config.fileConfig(

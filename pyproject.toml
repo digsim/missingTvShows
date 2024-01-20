@@ -1,10 +1,10 @@
 [project]
-name = "mtvs"
+name = "missingTvShows"
 authors = [
     {name = "Andreas Ruppen", email = "andreas.ruppen@gmail.com"},
 ]
 description = "Manages Kodi TVShows"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE.rst"}
 classifiers = [
@@ -15,12 +15,10 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Utilities",
 ]
-version = "1.2.3.dev0"
+version = "1.2.4.dev0"
 dynamic = ["dependencies"]
 
 [metadata]
-long_description = "file: README.md"
-long_description_content_type = "text/markdown"
 url = "https://github.com/digsim/missingTvShows"
 
 [project.urls]
@@ -30,6 +28,21 @@ url = "https://github.com/digsim/missingTvShows"
 
 [project.scripts]
 missingTvShows = "mtvs.main.__main__:cli"
+
+[project.optional-dependencies]
+docs = [
+  "Sphinx>=7.2.6",
+  "sphinx_rtd_theme",
+]
+test = [
+  "build",
+  "check-manifest >= 0.42",
+  "flake8",
+  "pytest",
+  "build", 
+  "twine",
+  "coverage",
+]
 
 [build-system]
 requires = ["setuptools"]
