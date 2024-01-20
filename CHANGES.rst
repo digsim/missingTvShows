@@ -4,7 +4,7 @@ Changelog
 1.2.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- First version of release pipeline
 
 
 1.2.2 (2024-01-20)
