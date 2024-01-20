@@ -4,9 +4,13 @@ Changelog
 1.2.2 (Unreleased)
 -----------------
 
-- Readthedocs integration
+- Version upgrades
 
-- Full Travis-Ci Integration
+- Compatibility with Python 3.12
+
+- Adoption of pyproject.toml
+
+- Readthedocs integration
 
 - Refactoring to PPIC
 
