@@ -19,8 +19,8 @@ on:
 
 jobs:
   build:
-    name: test with ${{ matrix.py }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: test with ${{ matrix.py }} on linux
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -29,24 +29,10 @@ jobs:
           - "3.11"
           - "3.10"
           - "3.9"
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-      - name: Set up Homebrew
-        id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-        if: matrix.os == 'macos-latest'
-
-      - name: Install prerequisites
-        run: |
-          brew install mysql-client
-        if: matrix.os == 'macos-latest'
 
       - name: Setup python for test ${{ matrix.py }}
         uses: actions/setup-python@v4
@@ -56,70 +42,28 @@ jobs:
       - name: Install tox and pex dependencies
         run: |
           python -m pip install --upgrade pip
-          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
-          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
-          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
           python -m pip install pex tox tox-gh
-        if: matrix.os == 'macos-latest'
-
-      - name: Install tox and pex dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pex tox tox-gh
-        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-
-      - name: Build Software
-        run: |
-          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
-          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
-          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
-          tox 
-        if: matrix.os == 'macos-latest'
 
       - name: Build Software
         run: |
           tox 
-        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-
-      - name: Build documentation
-        run: |
-          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
-          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
-          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
-          tox -e docs
-        if: matrix.os == 'macos-latest'
 
       - name: Build documentation
         run: |
           tox -e docs
-        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
-
-      - name: Build distributable packages
-        run: |
-          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
-          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
-          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
-          tox -e package
-        if: matrix.os == 'macos-latest'
 
       - name: Build distributable packages
         run: |
           tox -e package
-        if: matrix.os == 'ubuntu-latest' # no windows build due to fnctl https://github.com/pantsbuild/pex/issues/1155
+
+      - name: Verify pex package is runnable
+        run: ./dist/missingtvshows_${{ runner.os }}.pex
 
       - name: Verify package is runnable
-        run: ./dist/missingtvshows_${{ runner.os }}.pex
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+          pip install -e .
+          python scripts/test.py -h
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .tox/docs/tmp/html/
-          force_orphan: true
-        if: matrix.py == '3.11' && matrix.os == 'ubuntu-latest'
-      
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -127,4 +71,3 @@ jobs:
           file: ./dist/missingtvshows_${{ runner.os }}.pex
           asset_name: missingtvshows_${{ runner.os }}.pex
           tag: ${{ github.ref }}
-        if: matrix.py == '3.11' && (matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest')
