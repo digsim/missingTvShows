@@ -1,0 +1,50 @@
+name: MissingTvShowsForXBMC PR Windows Build
+
+permissions:
+  contents: write
+  packages: write
+  issues: read
+  checks: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  build:
+    name: test with ${{ matrix.py }} on windows-latest
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        py:
+          - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup python for test ${{ matrix.py }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.py }}
+
+      - name: Install tox and pex dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pex tox tox-gh
+
+      - name: Build Software
+        run: |
+          tox
+
+      # no package build on windows due to fnctl https://github.com/pantsbuild/pex/issues/1155
+
+      - name: Verify package is runnable
+        run: |
+          pip install -e .
+          python scripts/test.py -h
