@@ -39,11 +39,17 @@ jobs:
         zest.releaser
         --user
     - name: Prerelease
-      run: prerelease --no-input
+      run: |
+        git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+        git config --global user.email "username@users.noreply.github.com"
+        prerelease --no-input
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
     - name: Postrelease
-      run: postrelease --no-input
+      run: |
+        git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+        git config --global user.email "username@users.noreply.github.com"
+        postrelease --no-input
     - name: Store the distribution packages
       uses: actions/upload-artifact@v3
       with:
@@ -51,8 +57,6 @@ jobs:
         path: dist/
     # Commit and push all changed files.
     - name: GIT Commit Build Artifacts (coverage, dist, devdist, docs)
-      # Only run on main branch push (e.g. after pull request merge).
-      if: github.event_name == 'push'
       run: |
         git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
         git config --global user.email "username@users.noreply.github.com"
