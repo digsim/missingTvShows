@@ -31,7 +31,7 @@ copyright = "{}, Andreas Ruppen".format(this_year)
 if on_rtd:
     version = "1.2.2.dev0"    # noqa: F811
 else:
-    version = version("mtvs")
+    version = version("missingTvShows")
 release = version
 
 exclude_patterns = ["_build", "lib", "bin", "include", "local"]
