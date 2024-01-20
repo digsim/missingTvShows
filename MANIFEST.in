@@ -13,4 +13,5 @@ recursive-include scripts *.py
 
 include *.rst *.md tox.ini
 include requirements.txt
+exclude .pre-commit-config.yaml
 recursive-exclude mtvs *.pyc *~
