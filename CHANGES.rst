@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.4 (unreleased)
+1.2.4 (2024-01-20)
 ------------------
 
 - First version of release pipeline
