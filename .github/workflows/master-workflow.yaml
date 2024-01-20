@@ -46,28 +46,65 @@ jobs:
 
       - name: Build Software
         run: |
-          tox 
+          tox
+
+      # Order is important we don't want to have the pex uploaded to pypi
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
 
       - name: Build documentation
         run: |
           tox -e docs
 
+      - name: Check pypi versions
+        uses: maybe-hello-world/pyproject-check-version@v4
+        id: versioncheck
+        with:
+          pyproject-path: "./pyproject.toml"
+          test-regex: "[0-9]+.[0-9]+.[0-9]+dev[0-9]+"
+
       - name: Build distributable packages
         run: |
           tox -e package
+        env:
+          PACKAGE_VERSION: ${{ steps.versioncheck.outputs.local_version }}
 
       - name: Verify pex package is runnable
-        run: ./dist/missingtvshows_${{ runner.os }}.pex
+        run: ./dist/missingtvshows_${{ steps.versioncheck.outputs.local_version }}.pex
 
       - name: Verify package is runnable
         run: |
           pip install -e .
           python scripts/test.py -h
 
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./dist/missingtvshows_${{ runner.os }}.pex
-          asset_name: missingtvshows_${{ runner.os }}.pex
-          tag: ${{ github.ref }}
+
+
+  publish-to-testpypi:
+    name: Publish Python 🐍 distribution 📦 to TestPyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/missingTvShows
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Show downloaded packages
+      run: ls -R dist/
+    - name: Publish distribution 📦 to TestPyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.11
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        verbose: true

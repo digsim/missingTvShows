@@ -102,6 +102,9 @@ docs/_build/
 # PyBuilder
 target/
 
+# direnv
+.envrc
+
 test.db
 *~
 tvshows.log
