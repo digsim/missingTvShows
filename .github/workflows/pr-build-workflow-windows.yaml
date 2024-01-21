@@ -1,4 +1,4 @@
-name: MissingTvShowsForXBMC PR Windows Build
+name: PR Windows Build
 
 permissions:
   contents: write

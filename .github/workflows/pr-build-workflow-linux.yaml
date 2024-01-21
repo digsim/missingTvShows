@@ -1,4 +1,4 @@
-name: MissingTvShowsForXBMC PR Linxu Build
+name: PR Linxu Build
 
 permissions:
   contents: write
@@ -38,6 +38,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pex tox tox-gh
 
+      - name: Check pypi versions
+        uses: maybe-hello-world/pyproject-check-version@v4
+        id: versioncheck
+        with:
+          pyproject-path: "./pyproject.toml"
+          test-regex: "[0-9]+.[0-9]+.[0-9]+dev[0-9]+"
+
       - name: Build Software
         run: |
           tox 
@@ -49,9 +56,11 @@ jobs:
       - name: Build distributable packages
         run: |
           tox -e package
+        env:
+          PACKAGE_VERSION: ${{ steps.versioncheck.outputs.local_version }}
 
       - name: Verify pex package is runnable
-        run: ./dist/missingtvshows_${{ runner.os }}.pex
+        run: ./dist/missingtvshows_${{ steps.versioncheck.outputs.local_version }}.pex
 
       - name: Verify package is runnable
         run: |

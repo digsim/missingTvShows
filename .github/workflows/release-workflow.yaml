@@ -17,7 +17,6 @@ on:
         description: 'Branch to release'
         default: 'master'
 
-
 jobs:
   build:
     name: Build distribution 📦
@@ -94,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://test.pypi.org/p/missingTvShows
+      url: https://pypi.org/p/missingTvShows
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
@@ -108,14 +107,15 @@ jobs:
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@v1.8.11
       with:
-        repository-url: https://test.pypi.org/legacy/
+        #repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
 
   github-release:
     name: >-
       Sign the Python 🐍 distribution 📦 with Sigstore
       and upload them to GitHub Release
     needs:
-    - publish-to-pypi
+    - build
     runs-on: ubuntu-latest
 
     permissions:
@@ -123,6 +123,7 @@ jobs:
       id-token: write  # IMPORTANT: mandatory for sigstore
 
     steps:
+    - uses: actions/checkout@v4
     - name: Download all the dists
       uses: actions/download-artifact@v3
       with:
@@ -137,19 +138,16 @@ jobs:
           ./dist/*.whl
           ./dist/*.pex
 
-    - name: Retrieve version
-      run: |
-        echo "TAG_NAME=$(ls dist/ |grep whl |awk -F "-" '{print $2}')" >> $GITHUB_OUTPUT
+    - name: Save Tag version
       id: version
-
+      run: |
+        echo "TAG_NAME=$(ls dist/ |grep whl |awk -F "-" '{print $2}'  | head -n 1 |tr -d -)" >> "$GITHUB_ENV"
+          
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
       run: >-
-        gh release create
-        '${{ steps.version.outputs.TAG_NAME }}'
-        --repo '${{ github.repository }}'
-        -F CHANGES.rst
+        gh release create $TAG_NAME --repo '${{ github.repository }}' -F CHANGES.rst
 
     - name: Upload artifact signatures to GitHub Release
       env:
@@ -158,7 +156,5 @@ jobs:
       # `dist/` contains the built packages, and the
       # sigstore-produced signatures and certificates.
       run: >-
-        gh release upload
-        '${{ github.ref_name }}' dist/**
-        --repo '${{ github.repository }}'
+        gh release upload $TAG_NAME dist/** --repo '${{ github.repository }}'
 

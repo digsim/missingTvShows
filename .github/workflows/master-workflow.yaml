@@ -1,4 +1,4 @@
-name: MissingTvShowsForXBMC Master Build
+name: Master Build
 
 permissions:
   contents: write
@@ -108,3 +108,4 @@ jobs:
       with:
         repository-url: https://test.pypi.org/legacy/
         verbose: true
+        skip-existing: true

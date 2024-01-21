@@ -1,4 +1,4 @@
-name: MissingTvShowsForXBMC PR Mac Build
+name: PR Mac Build
 
 permissions:
   contents: write
@@ -69,17 +69,9 @@ jobs:
           export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
           export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
           tox -e package
-        if: matrix.os == 'macos-latest'
-
-      - name: Build distributable packages
-        run: |
-          export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
-          export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
-          export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
-          tox -e package
 
       - name: Verify pex package is runnable
-        run: ./dist/missingtvshows_${{ runner.os }}.pex
+        run: ./dist/missingtvshows_.pex
 
       - name: Verify package is runnable
         run: |

@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.2.3 (unreleased)
+1.3.0 (unreleased)
 ------------------
 
 - Version upgrades
@@ -10,6 +10,10 @@ Changelog
 - Compatibility with Python 3.12
 
 - Adoption of pyproject.toml
+
+
+1.2.2 (2018-08-25)
+------------------
 
 - Readthedocs integration
 
