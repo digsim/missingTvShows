@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 import argparse
 import logging
-import sys
 import random
+import sys
 import time
 from os.path import join
+
 from .main import Main
 from mtvs.Kodi.missing_tvshows import TVShows
 from mtvs.utils import utilities
@@ -17,7 +17,7 @@ class MainImpl(Main):
         self.__configName = "tvshows.conf"
         self.__logFileName = "tvshows.log"
 
-        super(MainImpl, self).__init__(
+        super().__init__(
             self.__configDirName, self.__configName, self.__logFileName
         )
         self.__log = logging.getLogger("Tube4Droid")

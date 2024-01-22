@@ -47,7 +47,7 @@ jobs:
 
       - name: Build Software
         run: |
-          tox 
+          tox
 
       - name: Build documentation
         run: |

@@ -1,6 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 #########################################################################
 # Simple script which is parsing all TV-Shows in the local XBMC MyVideos75.db                                                              #
 # For each TV-Show and for each Season TheTVDB is asked to know how many Episodes exists in this Season.              #
@@ -28,24 +26,28 @@
 #   See the License for the specific language governing permissions and                                                                             #
 #   limitations under the License.                                                                                                                                            #
 ###########################################################################
-
-from __future__ import unicode_literals
-from sqlalchemy import create_engine, Table, MetaData, Column, Integer, REAL, func  # type: ignore
-from sqlalchemy.orm import DeclarativeBase  # type: ignore
-from sqlalchemy.exc import ProgrammingError  # type: ignore
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists  # type: ignore
-import logging
 import logging.config
 import math
 import random
 import sqlite3
 import sys
 import time
+
 import tvdb_v4_official  # type: ignore
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy import func
+from sqlalchemy import Integer
+from sqlalchemy import MetaData
+from sqlalchemy import REAL
+from sqlalchemy import Table
+from sqlalchemy.exc import ProgrammingError  # type: ignore
+from sqlalchemy.orm import DeclarativeBase  # type: ignore
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import database_exists  # type: ignore
 
 
-class TVShows(object):
+class TVShows:
     def __init__(
         self,
         tvdbdatabase,
@@ -358,7 +360,7 @@ class TVShows(object):
         try:
             nonewatched, somewatched = self._make_sql_queries()
         except ValueError as ve:
-            self.__log.error("Could not query database: {0}".format(str(ve)))
+            self.__log.error(f"Could not query database: {str(ve)}")
             sys.exit(-5)
 
         unwatched_finished_shows = []

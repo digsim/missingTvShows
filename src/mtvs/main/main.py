@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-import sys
+import configparser
+import logging.config
+import os
+import pkgutil
 import shutil
 import signal
-import logging.config
-import pkgutil
+import sys
 from importlib.metadata import version
-import colorama
-import os
 from os.path import expanduser
 
-import configparser
+import colorama
 
 
-class Main(object):
+class Main:
     def __init__(self, configDirName, configName, logFileName):
         """
         Constructor.

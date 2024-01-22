@@ -22,4 +22,3 @@ The command line output is structured into the following four sections:
 Since TheTVDB gets constantly updated (for running seasons), it is possible that a given season is sometimes in section 2) and sometimes in section 4). However, if the season is locked on thetvdb, the information is accurate and once a a series arrives in section 4, it will stay there.
 
 There is no section containing complete and watched episodes as I judge this infomration not relevant here. Thus, as soon as for a given season all episodes are collected and watched, it will dissapear from the list.
-

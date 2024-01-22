@@ -21,12 +21,12 @@ jobs:
   build:
     name: Build distribution 📦
     runs-on: ubuntu-latest
-    env: 
+    env:
       CI_COMMIT_MESSAGE: Continuous Integration Build Artifacts
       CI_COMMIT_AUTHOR: Continuous Integration
     steps:
     - uses: actions/checkout@v4
- 
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -49,16 +49,16 @@ jobs:
       with:
         pyproject-path: "./pyproject.toml"
         test-regex: "[0-9]+.[0-9]+.[0-9]+dev[0-9]+"
- 
+
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
- 
+
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
- 
+
     - name: Build pex package
       run: tox -e package
       env:
@@ -103,7 +103,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
- 
+
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@v1.8.11
       with:
@@ -142,7 +142,7 @@ jobs:
       id: version
       run: |
         echo "TAG_NAME=$(ls dist/ |grep whl |awk -F "-" '{print $2}'  | head -n 1 |tr -d -)" >> "$GITHUB_ENV"
-          
+
     - name: Create GitHub Release
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -157,4 +157,3 @@ jobs:
       # sigstore-produced signatures and certificates.
       run: >-
         gh release upload $TAG_NAME dist/** --repo '${{ github.repository }}'
-

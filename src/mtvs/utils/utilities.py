@@ -1,7 +1,9 @@
-import sys
 import csv
 import logging
-from colorama import Fore, Style
+import sys
+
+from colorama import Fore
+from colorama import Style
 
 __log = logging.getLogger("Tube4Droid")
 
@@ -19,10 +21,7 @@ def save_CSV(
 
 def _write_CSV(series, filename):
     __log.debug("Writing to " + filename)
-    if sys.version_info >= (3, 0, 0):
-        f = open(filename, "w", newline="")
-    else:
-        f = open(filename, "wb")
+    f = open(filename, "w", newline="")
     with f:
         writer = csv.writer(f)
         writer.writerow(

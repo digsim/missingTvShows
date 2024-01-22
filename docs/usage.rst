@@ -130,4 +130,3 @@ Upon the first launch, the script creates the ~/.MissingTVShows/ directory conta
     * Under Windows there must me a simliar location ;-)
 
 * tvdbdb.db the local TheTVDB.com cache as SQLite file
-

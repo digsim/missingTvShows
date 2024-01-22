@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 from unittest import TestCase
+
 from mtvs.Kodi.missing_tvshows import TVShows   # noqa: F401
 
 

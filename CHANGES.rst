@@ -24,4 +24,3 @@ Changelog
 -----------------
 
 - Adapted code to the new Kodi MyVideos107 DB Schema.
-
