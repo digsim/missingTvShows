@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 #########################################################################
 # Simple script which is parsing all TV-Shows in the local XBMC MyVideos75.db                                                              #
@@ -29,7 +28,6 @@
 #   limitations under the License.                                                                                                                                            #
 ###########################################################################
 
-from __future__ import unicode_literals
 from sqlalchemy import create_engine, Table, MetaData, Column, Integer, REAL, func  # type: ignore
 from sqlalchemy.orm import DeclarativeBase  # type: ignore
 from sqlalchemy.exc import ProgrammingError  # type: ignore
@@ -45,7 +43,7 @@ import time
 import tvdb_v4_official  # type: ignore
 
 
-class TVShows(object):
+class TVShows:
     def __init__(
         self,
         tvdbdatabase,
@@ -358,7 +356,7 @@ class TVShows(object):
         try:
             nonewatched, somewatched = self._make_sql_queries()
         except ValueError as ve:
-            self.__log.error("Could not query database: {0}".format(str(ve)))
+            self.__log.error(f"Could not query database: {str(ve)}")
             sys.exit(-5)
 
         unwatched_finished_shows = []

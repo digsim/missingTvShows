@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import argparse
 import logging
 import sys
@@ -17,7 +16,7 @@ class MainImpl(Main):
         self.__configName = "tvshows.conf"
         self.__logFileName = "tvshows.log"
 
-        super(MainImpl, self).__init__(
+        super().__init__(
             self.__configDirName, self.__configName, self.__logFileName
         )
         self.__log = logging.getLogger("Tube4Droid")

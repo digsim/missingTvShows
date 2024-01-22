@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import sys
 import shutil
 import signal
@@ -13,7 +11,7 @@ from os.path import expanduser
 import configparser
 
 
-class Main(object):
+class Main:
     def __init__(self, configDirName, configName, logFileName):
         """
         Constructor.

@@ -19,10 +19,7 @@ def save_CSV(
 
 def _write_CSV(series, filename):
     __log.debug("Writing to " + filename)
-    if sys.version_info >= (3, 0, 0):
-        f = open(filename, "w", newline="")
-    else:
-        f = open(filename, "wb")
+    f = open(filename, "w", newline="")
     with f:
         writer = csv.writer(f)
         writer.writerow(

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # missingtvshows documentation build configuration file
 from importlib.metadata import version
 import datetime
@@ -27,7 +26,7 @@ master_doc = "index"
 
 project = "Missing TV Shows for Kodi"
 this_year = datetime.date.today().year
-copyright = "{}, Andreas Ruppen".format(this_year)
+copyright = f"{this_year}, Andreas Ruppen"
 if on_rtd:
     version = "1.2.2.dev0"    # noqa: F811
 else:
