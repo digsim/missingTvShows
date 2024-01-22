@@ -14,6 +14,15 @@ repos:
     - id: check-yaml
     - id: requirements-txt-fixer
 
+-   repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.12.0
+    hooks:
+    -   id: reorder-python-imports
+        args: [
+            --application-directories, '.:src',
+            --py39-plus,
+        ]
+
 -   repo: https://github.com/asottile/pyupgrade
     rev: v3.15.0
     hooks:

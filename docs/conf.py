@@ -1,7 +1,7 @@
 # missingtvshows documentation build configuration file
-from importlib.metadata import version
 import datetime
 import os
+from importlib.metadata import version
 
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"

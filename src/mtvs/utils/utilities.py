@@ -1,7 +1,9 @@
-import sys
 import csv
 import logging
-from colorama import Fore, Style
+import sys
+
+from colorama import Fore
+from colorama import Style
 
 __log = logging.getLogger("Tube4Droid")
 

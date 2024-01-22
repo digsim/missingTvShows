@@ -1,9 +1,10 @@
 import argparse
 import logging
-import sys
 import random
+import sys
 import time
 from os.path import join
+
 from .main import Main
 from mtvs.Kodi.missing_tvshows import TVShows
 from mtvs.utils import utilities

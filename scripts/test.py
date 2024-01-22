@@ -1,6 +1,7 @@
 import sys
-from mtvs.main.mainImpl import MainImpl
+
 from mtvs.Kodi.missing_tvshows import TVShows  # type: ignore
+from mtvs.main.mainImpl import MainImpl
 
 
 def main():

@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 #########################################################################
 # Simple script which is parsing all TV-Shows in the local XBMC MyVideos75.db                                                              #
 # For each TV-Show and for each Season TheTVDB is asked to know how many Episodes exists in this Season.              #
@@ -27,20 +26,25 @@
 #   See the License for the specific language governing permissions and                                                                             #
 #   limitations under the License.                                                                                                                                            #
 ###########################################################################
-
-from sqlalchemy import create_engine, Table, MetaData, Column, Integer, REAL, func  # type: ignore
-from sqlalchemy.orm import DeclarativeBase  # type: ignore
-from sqlalchemy.exc import ProgrammingError  # type: ignore
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists  # type: ignore
-import logging
 import logging.config
 import math
 import random
 import sqlite3
 import sys
 import time
+
 import tvdb_v4_official  # type: ignore
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy import func
+from sqlalchemy import Integer
+from sqlalchemy import MetaData
+from sqlalchemy import REAL
+from sqlalchemy import Table
+from sqlalchemy.exc import ProgrammingError  # type: ignore
+from sqlalchemy.orm import DeclarativeBase  # type: ignore
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy_utils import database_exists  # type: ignore
 
 
 class TVShows:
