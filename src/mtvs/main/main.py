@@ -1,10 +1,11 @@
 import configparser
+import importlib.util
 import logging.config
 import os
-import pkgutil
 import shutil
 import signal
 import sys
+import typing
 from importlib.metadata import version
 from os.path import expanduser
 
@@ -12,7 +13,7 @@ import colorama
 
 
 class Main:
-    def __init__(self, configDirName, configName, logFileName):
+    def __init__(self, configDirName: str, configName: str, logFileName: str):
         """
         Constructor.
 
@@ -22,25 +23,29 @@ class Main:
         """
         colorama.init()
         self.original_sigint = signal.getsignal(signal.SIGINT)
-        self.__CONFIG_DIR = pkgutil.get_loader("mtvs").get_filename()
-        self.__CONFIG_DIR = os.path.dirname(self.__pathjoin(self.__CONFIG_DIR))
-        self.__CONFIG_DIR = self.__pathjoin(self.__CONFIG_DIR, "etc")
+        config_dir_spec: str = importlib.util.find_spec("mtvs").origin  # type: ignore
+        config_dir_path = os.path.dirname(config_dir_spec)
+        self.__CONFIG_DIR = self.__pathjoin(config_dir_path, "etc")
         self.__USER_CONFIG_DIR = expanduser("~/." + configDirName)
         self.__configName = configName
         self.__logFileName = logFileName
         self._checkUserConfigFiles()
         self.version = version("missingTvShows")
 
-        logging.basicConfig(level=logging.DEBUG)
-        logging.config.fileConfig(
+        logging_config = configparser.RawConfigParser()
+        logging_config.read(
             [
                 self.__pathjoin(self.__CONFIG_DIR, "logging.conf"),
                 self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf"),
                 "logging.conf",
-            ],
+            ]
+        )
+        logging.basicConfig(level=logging.DEBUG)
+        logging.config.fileConfig(
+            logging_config,
             defaults={
-                "logfilename": self.__pathjoin(
-                    self.__USER_CONFIG_DIR, self.__logFileName
+                "logfilename": str(self.__pathjoin(
+                    self.__USER_CONFIG_DIR, self.__logFileName)
                 )
             },
         )
@@ -55,7 +60,7 @@ class Main:
             ]
         )
 
-    def main(self):
+    def main(self) -> None:
         """
         This is the main entry point. Call this function at the end of getArguments
 
@@ -64,7 +69,7 @@ class Main:
         signal.signal(signal.SIGINT, self._exit_gracefully)
         self.doWork()
 
-    def doWork(self):
+    def doWork(self) -> None:
         """
         This the main method doing some actual work. This function needs to be overwritten by the <code>mainImpl.py</code> class.
 
@@ -72,7 +77,7 @@ class Main:
         """
         return
 
-    def getArguments(self, argv):
+    def getArguments(self, argv: list[typing.Any]) -> None:
         """
         Do the argument parsing. This function needs to be overwritten by the <code>mainImpl.py</code> class.
 
@@ -81,7 +86,7 @@ class Main:
         """
         return
 
-    def _checkPythonVersion(self):
+    def _checkPythonVersion(self) -> None:
         """
         Checks the pyhton version. Does nothing more than log the used version.
 
@@ -89,7 +94,7 @@ class Main:
         """
         self.__log.debug("Using Python " + sys.version[:3])
 
-    def _checkUserConfigFiles(self):
+    def _checkUserConfigFiles(self) -> None:
         """
         Verifies that the necessary configuration directory and files exist. If not, they are created from skeleton
         files and a message is printed indicating the user that he shall first adapt the default configuration.
@@ -124,7 +129,7 @@ class Main:
             print("Please edit " + self.__USER_CONFIG_DIR + "/" + self.__configName)
             sys.exit(0)
 
-    def _exit_gracefully(self, signum, frame):
+    def _exit_gracefully(self, signum, frame) -> None:
         """
         Helper function for signal handling. Responsible for handling CTRL-C and abort the execution.
         Prior to aborting, the user is asked if the really wants to interrupt.
@@ -149,5 +154,5 @@ class Main:
         # restore the exit gracefully handler here
         signal.signal(signal.SIGINT, self._exit_gracefully)
 
-    def __pathjoin(*pathes):
+    def __pathjoin(*pathes: typing.Any) -> os.PathLike:
         return os.path.join(*pathes[1:]).replace("\\", "/")

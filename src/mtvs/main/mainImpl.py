@@ -3,6 +3,7 @@ import logging
 import random
 import sys
 import time
+import typing
 from os.path import join
 
 from .main import Main
@@ -45,7 +46,7 @@ class MainImpl(Main):
 
         self.dryrun = False
 
-    def getArguments(self, argv):
+    def getArguments(self, argv: list[typing.Any]) -> None:
         """
         Parses the command line arguments.
 
@@ -119,7 +120,7 @@ class MainImpl(Main):
             sys.exit(1)
         sys.exit(0)
 
-    def doWork(self):
+    def doWork(self) -> None:
         """
         Overwrites the main
 
@@ -128,7 +129,7 @@ class MainImpl(Main):
         if self.__command == "sync":
             self.__doSyncCommand()
 
-    def __doSyncCommand(self):
+    def __doSyncCommand(self) -> None:
         """
         Parses calendar and writes corresponding ITC entries
 
