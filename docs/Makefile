@@ -53,7 +53,7 @@ manual: *.rst
 
 presentation: *.rst
 	$(SPHINXBUILD) -b html -t presentation . presentation
-  
+
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo

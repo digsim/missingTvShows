@@ -54,7 +54,7 @@ jobs:
           export PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig
           export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
           export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
-          tox 
+          tox
 
       - name: Build documentation
         run: |
