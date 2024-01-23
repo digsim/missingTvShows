@@ -5,6 +5,8 @@ Changelog
 1.3.0 (unreleased)
 ------------------
 
+- Adoption of types and mypy
+
 - Code Refactoring to follow Python best practice.
 
 - Version upgrades
