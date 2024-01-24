@@ -5,15 +5,17 @@ Changelog
 1.3.0 (unreleased)
 ------------------
 
-- Adoption of types and mypy
-
 - Code Refactoring to follow Python best practice.
+
+- Adoption of yaml for logging configuration
+
+- Adoption of types and mypy
 
 - Version upgrades
 
-- Compatibility with Python 3.12
-
 - Adoption of pyproject.toml
+
+- Compatibility with Python 3.12
 
 
 1.2.2 (2018-08-25)

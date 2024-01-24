@@ -46,14 +46,14 @@ class MainImpl(Main):
 
         self.dryrun = False
 
-    def getArguments(self, argv: list[typing.Any]) -> None:
+    def get_arguments(self, argv: list[typing.Any]) -> None:
         """
         Parses the command line arguments.
 
         :param argv: array of command line arguments
         :return: void
         """
-        self._checkPythonVersion()
+        self._check_python_version()
 
         parser = argparse.ArgumentParser(
             prog="missingtvshows",
@@ -120,16 +120,16 @@ class MainImpl(Main):
             sys.exit(1)
         sys.exit(0)
 
-    def doWork(self) -> None:
+    def do_work(self) -> None:
         """
         Overwrites the main
 
         :return: void
         """
         if self.__command == "sync":
-            self.__doSyncCommand()
+            self.__do_sync_command()
 
-    def __doSyncCommand(self) -> None:
+    def __do_sync_command(self) -> None:
         """
         Parses calendar and writes corresponding ITC entries
 
@@ -151,7 +151,7 @@ class MainImpl(Main):
             unwatched_unfinished_shows,
             watchedsome_unfinished_shows,
             watchedsome_finished_shows,
-        ) = tvshows.getSeriesInformation()
+        ) = tvshows.get_series_information()
         utilities.print_konsole(
             unwatched_finished_shows,
             unwatched_unfinished_shows,
@@ -169,4 +169,4 @@ class MainImpl(Main):
 
 if __name__ == "__main__":
     main = MainImpl()
-    main.getArguments(sys.argv[1:])
+    main.get_arguments(sys.argv[1:])

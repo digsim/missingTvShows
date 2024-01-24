@@ -8,3 +8,4 @@ pytest
 sqlalchemy-stubs
 twine
 types-colorama
+types-PyYAML

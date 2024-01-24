@@ -84,9 +84,9 @@ class TVShows:
         self.__dbport = dbport
         self.__log.debug("Database " + self.__database)
 
-        self._checkLocalTVDBDatabase()
+        self._check_local_tvdb_database()
 
-    def _checkLocalTVDBDatabase(self) -> None:
+    def _check_local_tvdb_database(self) -> None:
         """
         Checks if the local thetvdb.com cache DB is initialized. In order to save bandwith and not hit to badly thetvdb.com
         the results stay cached for approx. 7 days. This function checks if this cache Sqlite DB exists and if not
@@ -105,7 +105,7 @@ class TVShows:
             con.commit()
         con.close()
 
-    def _initDBConnection(self) -> None:
+    def _init_db_connection(self) -> None:
         """
         Initializes the DB connections to Kodi's database. This connection can either be an MySQL or an Sqlite connection.
         Furthermore, this functions defines some Kodi tables which will later be used in various queries.
@@ -118,7 +118,7 @@ class TVShows:
                 db_connection_string = 'mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database
             elif self.__dbdialect == "sqlite":
                 db_connection_string = "sqlite:///" + self.__database
-                if not self._isSQLite3(self.__database):
+                if not self._is_sqlite3(self.__database):
                     raise ValueError(
                         self.__database + " is not a valid sqlite database"
                     )
@@ -144,7 +144,7 @@ class TVShows:
         self.__episodeview = Table("episode_view", metaData, autoload_with=engine)
         self.__uniqueid = Table("uniqueid", metaData, autoload_with=engine)
 
-    def _isSQLite3(self, filename: str | os.PathLike) -> bool:
+    def _is_sqlite3(self, filename: str | os.PathLike) -> bool:
         """
         Checks if a file is an Sqlite DB.
         Courtesy of http://stackoverflow.com/questions/12932607/how-to-check-with-python-and-sqlite3-if-one-sqlite-database-file-exists.
@@ -175,7 +175,7 @@ class TVShows:
 
         :return: two list of locally availalbe series.
         """
-        self._initDBConnection()
+        self._init_db_connection()
         session = self.__session
         tvshow = self.__tvshow
         seasons = self.__seasons
@@ -227,7 +227,7 @@ class TVShows:
         self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
         return nonewatched, somewatched
 
-    def _get_Episodes(self, season: int, seriesId: int) -> list[tuple[str, str, str, str]]:
+    def _get_episodes(self, season: int, seriesId: int) -> list[tuple[str, str, str, str]]:
         """
         Queries the episodes of a given serie and a given season.
 
@@ -261,7 +261,7 @@ class TVShows:
         episodes: list[tuple[str, str, str, str]] = query.all()
         return episodes
 
-    def getTotalNumberOfEpisodes(self, series_id: int, season: int) -> int:
+    def get_total_number_of_episodes(self, series_id: int, season: int) -> int:
         """
         Queries to number of aired episodes according to thetvdb.com. To save bandwith, we first check in the local
         thetvdb cache which is stored in a Sqlite DB. If we have a cache miss, we query thetvdb directly and store
@@ -350,7 +350,7 @@ class TVShows:
         session.close()
         return number_of_episodes
 
-    def getSeriesInformation(self) -> tuple[list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow]]:
+    def get_series_information(self) -> tuple[list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow]]:
         """
         Main function. Puts all pieces together. It queries the local Kodi DB and compares the locally availalbe
         episodes for each Serie/Season combinaton and compares these results with the avialable episodes on
@@ -384,7 +384,7 @@ class TVShows:
                     rowTitle, rowId, rowSeason
                 )
             )
-            number_of_episodes = self.getTotalNumberOfEpisodes(
+            number_of_episodes = self.get_total_number_of_episodes(
                 int(rowId), int(rowSeason)
             )
             full_episodes = range(1, number_of_episodes + 1)
@@ -398,7 +398,7 @@ class TVShows:
                 rowDownloaded
             ):  # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                episodes = self._get_Episodes(rowSeason, rowId)
+                episodes = self._get_episodes(rowSeason, rowId)
                 present_episodes: list[int] = []
                 for episode in episodes:
                     present_episodes.append(int(episode[2]))
@@ -442,7 +442,7 @@ class TVShows:
                     rowTitle, rowId, rowSeason
                 )
             )
-            number_of_episodes = self.getTotalNumberOfEpisodes(
+            number_of_episodes = self.get_total_number_of_episodes(
                 int(rowId), int(rowSeason)
             )
             full_episodes = range(1, number_of_episodes + 1)
@@ -450,7 +450,7 @@ class TVShows:
                 rowDownloaded
             ):  # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                episodes = self._get_Episodes(rowSeason, rowId)
+                episodes = self._get_episodes(rowSeason, rowId)
                 present_episodes = []
                 for episode in episodes:
                     present_episodes.append(int(episode[2]))

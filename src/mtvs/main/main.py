@@ -10,6 +10,7 @@ from importlib.metadata import version
 from os.path import expanduser
 
 import colorama
+import yaml
 
 
 class Main:
@@ -30,26 +31,20 @@ class Main:
         self.USER_CONFIG_DIR = self.__USER_CONFIG_DIR
         self.__configName = configName
         self.__logFileName = logFileName
-        self._checkUserConfigFiles()
+        self._check_user_config_files()
         self.version = version("missingTvShows")
 
-        logging_config = configparser.RawConfigParser()
-        logging_config.read(
-            [
-                self.__pathjoin(self.__CONFIG_DIR, "logging.conf"),
-                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf"),
-                "logging.conf",
-            ]
-        )
-        logging.basicConfig(level=logging.DEBUG)
-        logging.config.fileConfig(
-            logging_config,
-            defaults={
-                "logfilename": str(self.__pathjoin(
-                    self.__USER_CONFIG_DIR, self.__logFileName)
-                )
-            },
-        )
+        if os.path.isfile("logging.yaml"):
+            logging_config = self.__pathjoin("logging.yaml")
+        elif os.path.isfile(self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")):
+            logging_config = self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")
+        elif os.path.isfile(self.__pathjoin(self.__CONFIG_DIR, "logging.yaml")):
+            logging_config = self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")
+        with open(logging_config) as f:
+            config = yaml.safe_load(f.read())
+        config['handlers']['fileHandler']['filename'] = self.__pathjoin(self.__USER_CONFIG_DIR, self.__logFileName)
+
+        logging.config.dictConfig(config)
         self.__log = logging.getLogger("Tube4Droid")
 
         self.config = configparser.ConfigParser()
@@ -68,9 +63,9 @@ class Main:
         :return: void
         """
         signal.signal(signal.SIGINT, self._exit_gracefully)
-        self.doWork()
+        self.do_work()
 
-    def doWork(self) -> None:
+    def do_work(self) -> None:
         """
         This the main method doing some actual work. This function needs to be overwritten by the <code>mainImpl.py</code> class.
 
@@ -78,7 +73,7 @@ class Main:
         """
         return
 
-    def getArguments(self, argv: list[typing.Any]) -> None:
+    def get_arguments(self, argv: list[typing.Any]) -> None:
         """
         Do the argument parsing. This function needs to be overwritten by the <code>mainImpl.py</code> class.
 
@@ -87,7 +82,7 @@ class Main:
         """
         return
 
-    def _checkPythonVersion(self) -> None:
+    def _check_python_version(self) -> None:
         """
         Checks the pyhton version. Does nothing more than log the used version.
 
@@ -95,7 +90,7 @@ class Main:
         """
         self.__log.debug("Using Python " + sys.version[:3])
 
-    def _checkUserConfigFiles(self) -> None:
+    def _check_user_config_files(self) -> None:
         """
         Verifies that the necessary configuration directory and files exist. If not, they are created from skeleton
         files and a message is printed indicating the user that he shall first adapt the default configuration.
@@ -110,11 +105,11 @@ class Main:
             print("User config dir does not exist. Creating " + self.__USER_CONFIG_DIR)
             os.mkdir(self.__USER_CONFIG_DIR)
             printWarningAndAbort = True
-        if not os.path.exists(self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf")):
+        if not os.path.exists(self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")):
             print("Copying default logging conf to " + self.__USER_CONFIG_DIR)
             shutil.copy(
-                self.__pathjoin(self.__CONFIG_DIR, "logging.conf"),
-                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf"),
+                self.__pathjoin(self.__CONFIG_DIR, "logging.yaml"),
+                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml"),
             )
         if not os.path.exists(
             self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName)
