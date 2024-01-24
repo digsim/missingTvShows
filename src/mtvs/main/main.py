@@ -13,7 +13,7 @@ import colorama
 
 
 class Main:
-    def __init__(self, configDirName: str, configName: str, logFileName: str):
+    def __init__(self, configDirName: str, configName: str, logFileName: str) -> None:
         """
         Constructor.
 
@@ -27,6 +27,7 @@ class Main:
         config_dir_path = os.path.dirname(config_dir_spec)
         self.__CONFIG_DIR = self.__pathjoin(config_dir_path, "etc")
         self.__USER_CONFIG_DIR = expanduser("~/." + configDirName)
+        self.USER_CONFIG_DIR = self.__USER_CONFIG_DIR
         self.__configName = configName
         self.__logFileName = logFileName
         self._checkUserConfigFiles()
@@ -129,7 +130,7 @@ class Main:
             print("Please edit " + self.__USER_CONFIG_DIR + "/" + self.__configName)
             sys.exit(0)
 
-    def _exit_gracefully(self, signum, frame) -> None:
+    def _exit_gracefully(self, signum: typing.Any, frame: typing.Any) -> None:
         """
         Helper function for signal handling. Responsible for handling CTRL-C and abort the execution.
         Prior to aborting, the user is asked if the really wants to interrupt.
@@ -154,5 +155,6 @@ class Main:
         # restore the exit gracefully handler here
         signal.signal(signal.SIGINT, self._exit_gracefully)
 
-    def __pathjoin(*pathes: typing.Any) -> os.PathLike:
-        return os.path.join(*pathes[1:]).replace("\\", "/")
+    def __pathjoin(*pathes: typing.Any) -> str:
+        a: str = os.path.join(*pathes[1:]).replace("\\", "/")
+        return a

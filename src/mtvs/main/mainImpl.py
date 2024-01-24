@@ -12,7 +12,7 @@ from mtvs.utils import utilities
 
 
 class MainImpl(Main):
-    def __init__(self):
+    def __init__(self) -> None:
         """Constructor"""
         self.__configDirName = "MissingTVShows"
         self.__configName = "tvshows.conf"
@@ -32,7 +32,7 @@ class MainImpl(Main):
         self.__random = random.SystemRandom(time.localtime())
         # Config stuff from config file
         self.__tvdbdatabse = join(
-            self._Main__USER_CONFIG_DIR, self.config.get("Config", "tvdbdb")
+            self.USER_CONFIG_DIR, self.config.get("Config", "tvdbdb")
         )
         self.__api_key = self.config.get("Config", "api_key")
         # Database stuff from config file
