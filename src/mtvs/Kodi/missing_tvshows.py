@@ -28,10 +28,12 @@
 ###########################################################################
 import logging.config
 import math
+import os
 import random
 import sqlite3
 import sys
 import time
+import typing
 
 import tvdb_v4_official  # type: ignore
 from sqlalchemy import Column
@@ -41,24 +43,26 @@ from sqlalchemy import Integer
 from sqlalchemy import MetaData
 from sqlalchemy import REAL
 from sqlalchemy import Table
-from sqlalchemy.exc import ProgrammingError  # type: ignore
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import DeclarativeBase  # type: ignore
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists  # type: ignore
+
+import mtvs._types
 
 
 class TVShows:
     def __init__(
         self,
-        tvdbdatabase,
-        apikey,
-        dbdialect,
-        database,
-        dbuser,
-        dbpasswd,
-        dbhost,
-        dbport,
-    ):
+        tvdbdatabase: str,
+        apikey: str,
+        dbdialect: str,
+        database: str,
+        dbuser: str,
+        dbpasswd: str,
+        dbhost: str,
+        dbport: str,
+    ) -> None:
         """Do some initialization stuff"""
 
         self.__log = logging.getLogger("Tube4Droid")
@@ -80,9 +84,9 @@ class TVShows:
         self.__dbport = dbport
         self.__log.debug("Database " + self.__database)
 
-        self._checkLocalTVDBDatabase()
+        self._check_local_tvdb_database()
 
-    def _checkLocalTVDBDatabase(self):
+    def _check_local_tvdb_database(self) -> None:
         """
         Checks if the local thetvdb.com cache DB is initialized. In order to save bandwith and not hit to badly thetvdb.com
         the results stay cached for approx. 7 days. This function checks if this cache Sqlite DB exists and if not
@@ -101,7 +105,7 @@ class TVShows:
             con.commit()
         con.close()
 
-    def _initDBConnection(self):
+    def _init_db_connection(self) -> None:
         """
         Initializes the DB connections to Kodi's database. This connection can either be an MySQL or an Sqlite connection.
         Furthermore, this functions defines some Kodi tables which will later be used in various queries.
@@ -114,7 +118,7 @@ class TVShows:
                 db_connection_string = 'mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database
             elif self.__dbdialect == "sqlite":
                 db_connection_string = "sqlite:///" + self.__database
-                if not self._isSQLite3(self.__database):
+                if not self._is_sqlite3(self.__database):
                     raise ValueError(
                         self.__database + " is not a valid sqlite database"
                     )
@@ -140,7 +144,7 @@ class TVShows:
         self.__episodeview = Table("episode_view", metaData, autoload_with=engine)
         self.__uniqueid = Table("uniqueid", metaData, autoload_with=engine)
 
-    def _isSQLite3(self, filename):
+    def _is_sqlite3(self, filename: str | os.PathLike) -> bool:
         """
         Checks if a file is an Sqlite DB.
         Courtesy of http://stackoverflow.com/questions/12932607/how-to-check-with-python-and-sqlite3-if-one-sqlite-database-file-exists.
@@ -160,7 +164,7 @@ class TVShows:
 
         return header[0:16] == b"SQLite format 3\000"
 
-    def _make_sql_queries(self):
+    def _make_sql_queries(self) -> tuple[list[typing.Any], list[typing.Any]]:
         """
         Queries the Kodi database for availalbe series. Two queries are made, the first one queries all tv shows where
         no episode is watched so far. These series will be candidates for the sections 'Ready to Watch' and 'Unwatched Missing'.
@@ -171,7 +175,7 @@ class TVShows:
 
         :return: two list of locally availalbe series.
         """
-        self._initDBConnection()
+        self._init_db_connection()
         session = self.__session
         tvshow = self.__tvshow
         seasons = self.__seasons
@@ -223,7 +227,7 @@ class TVShows:
         self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
         return nonewatched, somewatched
 
-    def _get_Episodes(self, season, seriesId):
+    def _get_episodes(self, season: int, seriesId: int) -> list[tuple[str, str, str, str]]:
         """
         Queries the episodes of a given serie and a given season.
 
@@ -254,10 +258,10 @@ class TVShows:
             .order_by("Title", "Season", "Episode")
         )
 
-        episodes = query.all()
+        episodes: list[tuple[str, str, str, str]] = query.all()
         return episodes
 
-    def getTotalNumberOfEpisodes(self, series_id, season):
+    def get_total_number_of_episodes(self, series_id: int, season: int) -> int:
         """
         Queries to number of aired episodes according to thetvdb.com. To save bandwith, we first check in the local
         thetvdb cache which is stored in a Sqlite DB. If we have a cache miss, we query thetvdb directly and store
@@ -279,7 +283,7 @@ class TVShows:
         query = (
             session.query(TVShow).filter_by(seriesid=series_id).filter_by(season=season)
         )
-        localshow = query.first()
+        localshow: TVShow = query.first()
 
         number_of_episodes = 0
         now = time.mktime(time.localtime())
@@ -320,7 +324,7 @@ class TVShows:
         elif not localshow and self.__forceLocal:
             number_of_episodes = -1
         elif self.__forceUpdate or (
-            (now - localshow.lastupdated > 604800) and not self.__forceLocal
+            (now - float(localshow.lastupdated) > 604800) and not self.__forceLocal
         ):
             season_type = "default"
             page = 0
@@ -338,7 +342,7 @@ class TVShows:
             next_update_time = now + self.__random.randint(0, 302400)
             self.__log.debug("Next update time is: " + str(next_update_time))
             localshow.totalnumofepisodes = number_of_episodes
-            localshow.lastupdated = next_update_time
+            localshow.lastupdated = next_update_time  # type: ignore
             session.commit()
         else:
             number_of_episodes = localshow.totalnumofepisodes
@@ -346,7 +350,7 @@ class TVShows:
         session.close()
         return number_of_episodes
 
-    def getSeriesInformation(self):
+    def get_series_information(self) -> tuple[list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow]]:
         """
         Main function. Puts all pieces together. It queries the local Kodi DB and compares the locally availalbe
         episodes for each Serie/Season combinaton and compares these results with the avialable episodes on
@@ -363,24 +367,24 @@ class TVShows:
             self.__log.error(f"Could not query database: {str(ve)}")
             sys.exit(-5)
 
-        unwatched_finished_shows = []
-        unwatched_unfinished_shows = []
-        watchedsome_unfinished_shows = []
-        watchedsome_finished_shows = []
+        unwatched_finished_shows: list[mtvs._types.MtvsTvShow] = []
+        unwatched_unfinished_shows: list[mtvs._types.MtvsTvShow] = []
+        watchedsome_unfinished_shows: list[mtvs._types.MtvsTvShow] = []
+        watchedsome_finished_shows: list[mtvs._types.MtvsTvShow] = []
 
         for row in nonewatched:
             if int(row[1]) == 0:  # Don't take into consideration Season 0
                 continue
-            rowTitle = row[0]  # .encode('utf-8')
-            rowId = row[3]
-            rowSeason = row[1]
-            rowDownloaded = row[2]
+            rowTitle: str = row[0]  # .encode('utf-8')
+            rowId: int = row[3]
+            rowSeason: int = row[1]
+            rowDownloaded: int = row[2]
             self.__log.debug(
                 "Currently treating series {:s} with id: {:s} and Season {:s}".format(
                     rowTitle, rowId, rowSeason
                 )
             )
-            number_of_episodes = self.getTotalNumberOfEpisodes(
+            number_of_episodes = self.get_total_number_of_episodes(
                 int(rowId), int(rowSeason)
             )
             full_episodes = range(1, number_of_episodes + 1)
@@ -394,11 +398,10 @@ class TVShows:
                 rowDownloaded
             ):  # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                episodes = self._get_Episodes(rowSeason, rowId)
-                present_episodes = []
+                episodes = self._get_episodes(rowSeason, rowId)
+                present_episodes: list[int] = []
                 for episode in episodes:
-                    present_episodes.append(episode[2])
-                present_episodes = map(int, present_episodes)
+                    present_episodes.append(int(episode[2]))
                 self.__log.debug("Present episodes " + str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
                 self.__log.debug("Missing episodes: " + str(missing_episodes)[1:-1])
@@ -422,7 +425,7 @@ class TVShows:
                         "NbDownloaded": rowDownloaded,
                         "NbAvailable": number_of_episodes,
                         "NbWatched": 0,
-                        "MissingEpisodes": 0,
+                        "MissingEpisodes": "0",
                     }
                 )
 
@@ -439,7 +442,7 @@ class TVShows:
                     rowTitle, rowId, rowSeason
                 )
             )
-            number_of_episodes = self.getTotalNumberOfEpisodes(
+            number_of_episodes = self.get_total_number_of_episodes(
                 int(rowId), int(rowSeason)
             )
             full_episodes = range(1, number_of_episodes + 1)
@@ -447,11 +450,10 @@ class TVShows:
                 rowDownloaded
             ):  # If number of local Episodes is different from TheTVDB
                 # Select all availalbe Episodes of current Series and Season
-                episodes = self._get_Episodes(rowSeason, rowId)
+                episodes = self._get_episodes(rowSeason, rowId)
                 present_episodes = []
                 for episode in episodes:
-                    present_episodes.append(episode[2])
-                present_episodes = map(int, present_episodes)
+                    present_episodes.append(int(episode[2]))
                 self.__log.debug("Present episodes: " + str(present_episodes))
                 missing_episodes = list(set(full_episodes) - set(present_episodes))
                 self.__log.debug("Missing episodes: " + str(missing_episodes)[1:-1])
@@ -475,7 +477,7 @@ class TVShows:
                         "NbDownloaded": rowDownloaded,
                         "NbAvailable": number_of_episodes,
                         "NbWatched": rowWatched,
-                        "MissingEpisodes": 0,
+                        "MissingEpisodes": "0",
                     }
                 )
         return (

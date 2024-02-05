@@ -5,21 +5,23 @@ import sys
 from colorama import Fore
 from colorama import Style
 
+import mtvs._types
+
 __log = logging.getLogger("Tube4Droid")
 
 
 def save_CSV(
-    unwatched_finished_shows,
-    unwatched_unfinished_shows,
-    watchedsome_unfinished_shows,
-    watchedsome_finished_shows,
-):
+    unwatched_finished_shows: list[mtvs._types.MtvsTvShow],
+    unwatched_unfinished_shows: list[mtvs._types.MtvsTvShow],
+    watchedsome_unfinished_shows: list[mtvs._types.MtvsTvShow],
+    watchedsome_finished_shows: list[mtvs._types.MtvsTvShow],
+) -> None:
     _write_CSV(watchedsome_finished_shows, "watchedsome_finished_shows.csv")
     _write_CSV(unwatched_unfinished_shows, "unwatched_unfinished_shows.csv")
     _write_CSV(watchedsome_unfinished_shows, "watchedsome_unfinished_shows.csv")
 
 
-def _write_CSV(series, filename):
+def _write_CSV(series: list[mtvs._types.MtvsTvShow], filename: str) -> None:
     __log.debug("Writing to " + filename)
     f = open(filename, "w", newline="")
     with f:
@@ -43,11 +45,11 @@ def _write_CSV(series, filename):
 
 
 def print_konsole(
-    unwatched_finished_shows,
-    unwatched_unfinished_shows,
-    watchedsome_unfinished_shows,
-    watchedsome_finished_shows,
-):
+    unwatched_finished_shows: list[mtvs._types.MtvsTvShow],
+    unwatched_unfinished_shows: list[mtvs._types.MtvsTvShow],
+    watchedsome_unfinished_shows: list[mtvs._types.MtvsTvShow],
+    watchedsome_finished_shows: list[mtvs._types.MtvsTvShow],
+) -> None:
     sys.stdout.write('\n')
     print(Fore.RED + '##############################################################')
     print('###################### Unwatched Missing #####################')

@@ -3,6 +3,7 @@ import logging
 import random
 import sys
 import time
+import typing
 from os.path import join
 
 from .main import Main
@@ -11,7 +12,7 @@ from mtvs.utils import utilities
 
 
 class MainImpl(Main):
-    def __init__(self):
+    def __init__(self) -> None:
         """Constructor"""
         self.__configDirName = "MissingTVShows"
         self.__configName = "tvshows.conf"
@@ -31,7 +32,7 @@ class MainImpl(Main):
         self.__random = random.SystemRandom(time.localtime())
         # Config stuff from config file
         self.__tvdbdatabse = join(
-            self._Main__USER_CONFIG_DIR, self.config.get("Config", "tvdbdb")
+            self.USER_CONFIG_DIR, self.config.get("Config", "tvdbdb")
         )
         self.__api_key = self.config.get("Config", "api_key")
         # Database stuff from config file
@@ -45,14 +46,14 @@ class MainImpl(Main):
 
         self.dryrun = False
 
-    def getArguments(self, argv):
+    def get_arguments(self, argv: list[typing.Any]) -> None:
         """
         Parses the command line arguments.
 
         :param argv: array of command line arguments
         :return: void
         """
-        self._checkPythonVersion()
+        self._check_python_version()
 
         parser = argparse.ArgumentParser(
             prog="missingtvshows",
@@ -119,16 +120,16 @@ class MainImpl(Main):
             sys.exit(1)
         sys.exit(0)
 
-    def doWork(self):
+    def do_work(self) -> None:
         """
         Overwrites the main
 
         :return: void
         """
         if self.__command == "sync":
-            self.__doSyncCommand()
+            self.__do_sync_command()
 
-    def __doSyncCommand(self):
+    def __do_sync_command(self) -> None:
         """
         Parses calendar and writes corresponding ITC entries
 
@@ -150,7 +151,7 @@ class MainImpl(Main):
             unwatched_unfinished_shows,
             watchedsome_unfinished_shows,
             watchedsome_finished_shows,
-        ) = tvshows.getSeriesInformation()
+        ) = tvshows.get_series_information()
         utilities.print_konsole(
             unwatched_finished_shows,
             unwatched_unfinished_shows,
@@ -168,4 +169,4 @@ class MainImpl(Main):
 
 if __name__ == "__main__":
     main = MainImpl()
-    main.getArguments(sys.argv[1:])
+    main.get_arguments(sys.argv[1:])

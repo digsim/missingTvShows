@@ -3,10 +3,10 @@ import sys
 from .mainImpl import MainImpl
 
 
-def cli():
+def cli() -> None:
     """Entry point for the application script defined in pyproject.toml"""
     main = MainImpl()
-    main.getArguments(sys.argv[1:])
+    main.get_arguments(sys.argv[1:])
 
 
 if __name__ == "__main__":

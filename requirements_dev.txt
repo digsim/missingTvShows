@@ -1,0 +1,11 @@
+black
+build
+coverage
+flake8
+mypy
+pre-commit
+pytest
+sqlalchemy-stubs
+twine
+types-colorama
+types-PyYAML

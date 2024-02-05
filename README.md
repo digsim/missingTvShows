@@ -12,6 +12,14 @@ locally and \* none has been watched \* some have already been watched
 
 ------------------------------------------------------------------------
 
+Build status:
+
+[![missingtvshows test status](https://github.com/digsim/missingTvShows/actions/workflows/master-workflow.yaml/badge.svg)](https://github.com/digsim/missingTvShows/actions)
+
+Coverage:
+
+[![image](https://coveralls.io/repos/digsim/missingTvShows/badge.svg?branch=master)](https://coveralls.io/r/digsim/missingTvShows?branch=master)
+
 Homepage
 : <http://missingtvshows.readthedocs.io/en/latest/>
 

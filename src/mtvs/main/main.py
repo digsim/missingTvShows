@@ -1,18 +1,20 @@
 import configparser
+import importlib.util
 import logging.config
 import os
-import pkgutil
 import shutil
 import signal
 import sys
+import typing
 from importlib.metadata import version
 from os.path import expanduser
 
 import colorama
+import yaml
 
 
 class Main:
-    def __init__(self, configDirName, configName, logFileName):
+    def __init__(self, configDirName: str, configName: str, logFileName: str) -> None:
         """
         Constructor.
 
@@ -22,28 +24,27 @@ class Main:
         """
         colorama.init()
         self.original_sigint = signal.getsignal(signal.SIGINT)
-        self.__CONFIG_DIR = pkgutil.get_loader("mtvs").get_filename()
-        self.__CONFIG_DIR = os.path.dirname(self.__pathjoin(self.__CONFIG_DIR))
-        self.__CONFIG_DIR = self.__pathjoin(self.__CONFIG_DIR, "etc")
+        config_dir_spec: str = importlib.util.find_spec("mtvs").origin  # type: ignore
+        config_dir_path = os.path.dirname(config_dir_spec)
+        self.__CONFIG_DIR = self.__pathjoin(config_dir_path, "etc")
         self.__USER_CONFIG_DIR = expanduser("~/." + configDirName)
+        self.USER_CONFIG_DIR = self.__USER_CONFIG_DIR
         self.__configName = configName
         self.__logFileName = logFileName
-        self._checkUserConfigFiles()
+        self._check_user_config_files()
         self.version = version("missingTvShows")
 
-        logging.basicConfig(level=logging.DEBUG)
-        logging.config.fileConfig(
-            [
-                self.__pathjoin(self.__CONFIG_DIR, "logging.conf"),
-                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf"),
-                "logging.conf",
-            ],
-            defaults={
-                "logfilename": self.__pathjoin(
-                    self.__USER_CONFIG_DIR, self.__logFileName
-                )
-            },
-        )
+        if os.path.isfile("logging.yaml"):
+            logging_config = self.__pathjoin("logging.yaml")
+        elif os.path.isfile(self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")):
+            logging_config = self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")
+        elif os.path.isfile(self.__pathjoin(self.__CONFIG_DIR, "logging.yaml")):
+            logging_config = self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")
+        with open(logging_config) as f:
+            config = yaml.safe_load(f.read())
+        config['handlers']['fileHandler']['filename'] = self.__pathjoin(self.__USER_CONFIG_DIR, self.__logFileName)
+
+        logging.config.dictConfig(config)
         self.__log = logging.getLogger("Tube4Droid")
 
         self.config = configparser.ConfigParser()
@@ -55,16 +56,16 @@ class Main:
             ]
         )
 
-    def main(self):
+    def main(self) -> None:
         """
         This is the main entry point. Call this function at the end of getArguments
 
         :return: void
         """
         signal.signal(signal.SIGINT, self._exit_gracefully)
-        self.doWork()
+        self.do_work()
 
-    def doWork(self):
+    def do_work(self) -> None:
         """
         This the main method doing some actual work. This function needs to be overwritten by the <code>mainImpl.py</code> class.
 
@@ -72,7 +73,7 @@ class Main:
         """
         return
 
-    def getArguments(self, argv):
+    def get_arguments(self, argv: list[typing.Any]) -> None:
         """
         Do the argument parsing. This function needs to be overwritten by the <code>mainImpl.py</code> class.
 
@@ -81,7 +82,7 @@ class Main:
         """
         return
 
-    def _checkPythonVersion(self):
+    def _check_python_version(self) -> None:
         """
         Checks the pyhton version. Does nothing more than log the used version.
 
@@ -89,7 +90,7 @@ class Main:
         """
         self.__log.debug("Using Python " + sys.version[:3])
 
-    def _checkUserConfigFiles(self):
+    def _check_user_config_files(self) -> None:
         """
         Verifies that the necessary configuration directory and files exist. If not, they are created from skeleton
         files and a message is printed indicating the user that he shall first adapt the default configuration.
@@ -104,11 +105,11 @@ class Main:
             print("User config dir does not exist. Creating " + self.__USER_CONFIG_DIR)
             os.mkdir(self.__USER_CONFIG_DIR)
             printWarningAndAbort = True
-        if not os.path.exists(self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf")):
+        if not os.path.exists(self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")):
             print("Copying default logging conf to " + self.__USER_CONFIG_DIR)
             shutil.copy(
-                self.__pathjoin(self.__CONFIG_DIR, "logging.conf"),
-                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.conf"),
+                self.__pathjoin(self.__CONFIG_DIR, "logging.yaml"),
+                self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml"),
             )
         if not os.path.exists(
             self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName)
@@ -124,7 +125,7 @@ class Main:
             print("Please edit " + self.__USER_CONFIG_DIR + "/" + self.__configName)
             sys.exit(0)
 
-    def _exit_gracefully(self, signum, frame):
+    def _exit_gracefully(self, signum: typing.Any, frame: typing.Any) -> None:
         """
         Helper function for signal handling. Responsible for handling CTRL-C and abort the execution.
         Prior to aborting, the user is asked if the really wants to interrupt.
@@ -149,5 +150,6 @@ class Main:
         # restore the exit gracefully handler here
         signal.signal(signal.SIGINT, self._exit_gracefully)
 
-    def __pathjoin(*pathes):
-        return os.path.join(*pathes[1:]).replace("\\", "/")
+    def __pathjoin(*pathes: typing.Any) -> str:
+        a: str = os.path.join(*pathes[1:]).replace("\\", "/")
+        return a

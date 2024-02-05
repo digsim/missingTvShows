@@ -38,6 +38,7 @@ repos:
     hooks:
     -   id: mypy
         exclude: ^(docs/|example-plugin/)
+        additional_dependencies: [sqlalchemy-stubs,types_colorama,types-PyYAML]
 
 # -   repo: https://github.com/psf/black
 #     rev: 22.10.0
