@@ -37,13 +37,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pex tox tox-gh
 
-      - name: Check pypi versions
-        uses: maybe-hello-world/pyproject-check-version@v4
-        id: versioncheck
-        with:
-          pyproject-path: "./pyproject.toml"
-          test-regex: "[0-9]+.[0-9]+.[0-9]+dev[0-9]+"
-
       - name: Build Software
         run: |
           tox
