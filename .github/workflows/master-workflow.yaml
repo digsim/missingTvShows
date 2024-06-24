@@ -58,13 +58,6 @@ jobs:
         run: |
           tox -e docs
 
-      - name: Check pypi versions
-        uses: maybe-hello-world/pyproject-check-version@v4
-        id: versioncheck
-        with:
-          pyproject-path: "./pyproject.toml"
-          test-regex: "[0-9]+.[0-9]+.[0-9]+dev[0-9]+"
-
       - name: Build distributable packages
         run: |
           tox -e package
