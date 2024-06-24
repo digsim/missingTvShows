@@ -38,7 +38,15 @@ repos:
     hooks:
     -   id: mypy
         exclude: ^(docs/|example-plugin/)
-        additional_dependencies: [sqlalchemy-stubs,types_colorama,types-PyYAML]
+        additional_dependencies: [types_colorama,types-PyYAML,types-setuptools]
+
+repos:
+  - repo: https://github.com/AliYmn/conventional-commits-check
+    rev: V2.0.0  # Use the latest release version
+    hooks:
+      - id: conventional-commits-check
+        stages: [commit-msg]
+    #args: ["--emoji-disabled"] # Add this argument to disable emojis
 
 # -   repo: https://github.com/psf/black
 #     rev: 22.10.0
