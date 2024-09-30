@@ -58,7 +58,7 @@ package-data = {'mtvs.etc'= ['logging.conf', 'tvshows.conf', 'missingTVShows-com
 where = ["src"]
 
 [tool.setuptools_scm]
-
+local_scheme = "no-local-version"
 
 [tool.pytest.ini_options]
 addopts = [
