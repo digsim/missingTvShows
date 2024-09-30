@@ -4,7 +4,7 @@ Installation
 From Download
 --------------
 
-The simplest way to use *missingtvshows* is to download the packaged *pex* file from `adnitc`_ and put it somewhere on the path like ``/usr/local/bin/``or ``/usr/local/share/bin``or ``~/.local/bin/`` and make it executable,
+The simplest way to use *missingtvshows* is to download the packaged *pex* file from `mtvs`_ and put it somewhere on the path like ``/usr/local/bin/``or ``/usr/local/share/bin``or ``~/.local/bin/`` and make it executable,
 
 From this point on, the binary can be executed by calling the *pex* file directly. There exist 3 variants of the *pex* file, depending on the availalbe python version. Choose either *adnitc26.pex*, *adnitc27.pex* or *adnitc35.pex* depending on what is availalbe on your system.
 
@@ -12,16 +12,14 @@ From this point on, the binary can be executed by calling the *pex* file directl
 
     Download files directly from here:
 
-    * :download:`missingtvshows26.pex <../dist/missingtvshows26.pex>`
-    * :download:`missingtvshows27.pex <../dist/missingtvshows27.pex>`
-    * :download:`missingtvshows35.pex <../dist/missingtvshows35.pex>`
+    * :download:`missingtvshows_.pex <../dist/missingtvshows_.pex>` For Python > 3.10
 
 From pip
 ---------
 
 Simply run::
 
-    sudo -H pip install missingtvshows
+    pipx install missingTvShows
 
 
 From Sources
@@ -32,19 +30,19 @@ Final installation
 
 From a terminal launch::
 
-    python setup.py install --record files.txt
+    pip install .
 
-This will compile and install the project to the pyhton libraries (eg. ``/usr/local/lib/python3.5/site-packages/adnitc-0.9-py3.5.egg``). Furthermore it will install a script in ``/usr/local/bin/``:
+This will compile and install the project to the pyhton libraries (eg. ``/usr/local/lib/python3.12/site-packages/missingTvShows-1.2.2.dev51+gf5133b9.d20240930.dist-info``). Furthermore it will install a script in ``/usr/local/bin/``:
 * missingtvshows
 
-Upon the first start a copy of a pristine application and logging configuration are created in the user's home directory ``~/.AdNITC/``. From this point on configuration files are read from this location. It is however possible to overwrite them either by placing a file with the same name (but prefixed with a dot eg. ``.logging.conf``) in the current working directory.
+Upon the first start a copy of a pristine application and logging configuration are created in the user's home directory ``~/.MissingTVShows/``. From this point on configuration files are read from this location. It is however possible to overwrite them either by placing a file with the same name (but prefixed with a dot eg. ``.logging.conf``) in the current working directory.
 
 Development installation
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 from a terminal launch::
 
-    python setup.py develop --record files.txt
+    pip install -e .
 
 does the same as before but, uses links instead of copying files.
 
@@ -54,7 +52,7 @@ Clean Working directory
 To clean the working directory::
 
     python setup.py clean --all
-    rm -rf build/ dist/ adnitc.egg-info/ files.txt
+    rm -rf build/ dist/
 
 
 
@@ -207,4 +205,4 @@ presentation-version use ``make presentation`` instead of ``make html``. You
 can open the presentation at ``presentation/index.html``.
 
 
-.. _`adnitc`: https://adnitc.gotdns.org/
+.. _`mtvs`: https://www.andreas-ruppen.ch/

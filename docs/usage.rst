@@ -54,8 +54,7 @@ From Sources
 
 From a terminal launch::
 
-    sudo python setup.py install --record files.txt
-
+    pip install .
 
 this will compile and install the project to the pyhton libraries (eg. /usr/local/lib/python2.7/dist-packages/XWoT_Model_Translator-1.1-py2.7.egg). Furthermore it will install a script in /usr/local/bin/:
 * missingTVShows
@@ -66,7 +65,9 @@ The basic configuration and logging.conf are copied into /etc/MissingTVShows/. U
 
 from a terminal launch::
 
-    sudo python setup.py develop --record files.txt
+    virtualenv -p /bin/python3.12 venv-312
+    source venv-312/bin/activate.fish
+    pip install -e .
 
 
 does the same as before but, uses links instead of copying files.
@@ -75,47 +76,17 @@ does the same as before but, uses links instead of copying files.
 
 To clean the working directory::
 
-    sudo python setup.py clean --all
-    sudo rm -rf build/ dist/ Identify_missing_TVShows_in_Kodi.egg-info/ files.txt
+    rm -rf build/ dist/
 
 
 Uninstall
 -----------
-
-Method 1
-^^^^^^^^^^^^^
 
 Via pip::
 
     pip uninstall missingTVShows
 
 
-Method 2 (if installed from sources)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-By hand::
-
-    cat files.txt |sudo xargs rm -rf
-
-
-Method 3  (if installed from sources)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-First find the installed package with pip and the uninstall it::
-
-    ✔ ~/Documents/Programming/Python/missing_tv_shows_for_xbmc [master ↑·1|✚ 1]
-    12:11 $ pip freeze |grep Identify-missing-TVShows
-    Identify-missing-TVShows-in-Kodi==1.1
-    ✔ ~/Documents/Programming/Python/missing_tv_shows_for_xbmc [master ↑·1|✚ 1]
-    12:11 $ sudo pip uninstall Identify-missing-TVShows-in-Kodi
-    Password:
-    Uninstalling Identify-missing-TVShows-in-Kodi:
-      /Library/Python/2.7/site-packages/Identify_missing_TVShows_in_Kodi-1.1-py2.7.egg
-      /usr/local/bin/missingTVShows
-    Proceed (y/n)? y
-      Successfully uninstalled Identify-missing-TVShows-in-Kodi
-    ✔ ~/Documents/Programming/Python/missing_tv_shows_for_xbmc [master ↑·1|✚ 1]
-    12:12 $
 
 
 Configuration
