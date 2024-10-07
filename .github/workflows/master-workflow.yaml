@@ -43,6 +43,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pex tox tox-gh
 
+      - name: Check pypi versions
+        run: |
+          echo "local_version=$(python -m setuptools_scm)" >> $GITHUB_OUTPUT
+        id: versioncheck
+
       - name: Build Software
         run: |
           tox

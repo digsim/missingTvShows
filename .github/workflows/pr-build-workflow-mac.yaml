@@ -40,6 +40,11 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
 
+      - name: Check pypi versions
+        run: |
+          echo "local_version=$(python -m setuptools_scm)" >> $GITHUB_OUTPUT
+        id: versioncheck
+
       - name: Install tox and pex dependencies
         run: |
           python -m pip install --upgrade pip
