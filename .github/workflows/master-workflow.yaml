@@ -20,7 +20,7 @@ on:
 jobs:
   build:
     name: test with ${{ matrix.py }} on linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -91,7 +91,7 @@ jobs:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
     needs:
     - build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     environment:
       name: testpypi
