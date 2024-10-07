@@ -11,6 +11,9 @@ permissions:
   pull-requests: write
 
 on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
     inputs:
       branch:
@@ -47,11 +50,17 @@ jobs:
 
     # Commit and push all changed files.
     - name: GIT create tag
+      if: github.event_name == 'workflow_dispatch'
       run: |
         git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
         git config --global user.email "username@users.noreply.github.com"
         git tag ${{ inputs.tag }}
         git push --follow-tags
+
+    - name: Save package version for later
+      run: |
+        echo "local_version=$(python -m setuptools_scm --strip-dev)" >> $GITHUB_OUTPUT
+      id: versioncheck
 
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
@@ -70,7 +79,7 @@ jobs:
       run: |
         tox -e package
       env:
-        PACKAGE_VERSION: ${{ inputs.tag }}
+        PACKAGE_VERSION: ${{ steps.versioncheck.outputs.local_version }}
 
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
@@ -138,10 +147,15 @@ jobs:
           ./dist/*.whl
           ./dist/*.pex
 
+    # - name: Save Tag version
+    #   id: version
+    #   run: |
+    #     echo "TAG_NAME=$(ls dist/ |grep whl |awk -F "-" '{print $2}'  | head -n 1 |tr -d -)" >> "$GITHUB_ENV"
+
     - name: Save Tag version
-      id: version
       run: |
-        echo "TAG_NAME=$(ls dist/ |grep whl |awk -F "-" '{print $2}'  | head -n 1 |tr -d -)" >> "$GITHUB_ENV"
+        echo "TAG_NAME=$(python -m setuptools_scm --strip-dev)"  >> "$GITHUB_ENV"
+      id: versioncheck
 
     - name: Create GitHub Release
       env:
