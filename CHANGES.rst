@@ -2,7 +2,13 @@ Changelog
 =========
 
 
-1.3.0 (unreleased)
+1.3.1 (unreleased)
+------------------
+
+- tbd
+
+
+1.3.0 (2024-10-07)
 ------------------
 
 - Code Refactoring to follow Python best practice.
@@ -15,7 +21,7 @@ Changelog
 
 - Adoption of pyproject.toml
 
-- Compatibility with Python 3.12
+- Compatibility with Python [3.10 - 3.13]
 
 
 1.2.2 (2018-08-25)
