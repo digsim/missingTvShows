@@ -30,6 +30,8 @@ jobs:
     env:
       CI_COMMIT_MESSAGE: Continuous Integration Build Artifacts
       CI_COMMIT_AUTHOR: Continuous Integration
+    outputs:
+      local_version: ${{ steps.versioncheck.outputs.local_version }}
     steps:
     - uses: actions/checkout@v4
 
@@ -147,21 +149,18 @@ jobs:
           ./dist/*.whl
           ./dist/*.pex
 
+    # If we want to use setuptools_scm here we would alos need to install the whole
+    # Python stack for this step. Hence falling back to some bash magic for getting
+    # the version.
     # - name: Save Tag version
     #   id: version
     #   run: |
     #     echo "TAG_NAME=$(ls dist/ |grep whl |awk -F "-" '{print $2}'  | head -n 1 |tr -d -)" >> "$GITHUB_ENV"
 
-    - name: Save Tag version
-      run: |
-        echo "TAG_NAME=$(python -m setuptools_scm --strip-dev)"  >> "$GITHUB_ENV"
-      id: versioncheck
-
-    - name: Create GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: >-
-        gh release create $TAG_NAME --repo '${{ github.repository }}' -F CHANGES.rst
+    # - name: Save Tag version
+    #   run: |
+    #     echo "TAG_NAME=$(python -m setuptools_scm --strip-dev)"  >> "$GITHUB_ENV"
+    #   id: versioncheck
 
     - name: Upload artifact signatures to GitHub Release
       env:
@@ -170,4 +169,4 @@ jobs:
       # `dist/` contains the built packages, and the
       # sigstore-produced signatures and certificates.
       run: >-
-        gh release upload $TAG_NAME dist/** --repo '${{ github.repository }}'
+        gh release upload ${{ needs.build.outputs.local_version }} dist/** --repo '${{ github.repository }}'
