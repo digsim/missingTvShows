@@ -43,6 +43,12 @@ License
 
 ------------------------------------------------------------------------
 
+# Installation
+
+* Create virtualenv `virtualenv -p /opt/homebrew/bin/python3.12 venv-312`
+* Active virtualenv `source venv-312/bin/activate.bash`
+* Install software locally `pip install .`
+
 # Usage
 
 Simply launch [missingTvShows]{.title-ref} to get help and instructions

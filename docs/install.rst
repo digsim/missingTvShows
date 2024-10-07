@@ -55,6 +55,16 @@ To clean the working directory::
     rm -rf build/ dist/
 
 
+Release Software
+-----------------
+
+Version numbers are derived from the git history with `setuptools_scm <https://github.com/pypa/setuptools-scm>`_: Likely `python -m setuptools_scm` prints the current version. It's a mix from the version of the last git tag plus the `dev` suffix with a number indicating the distance to the last git tag. If the command is called on a commit with a git tag then it just takes that tag.
+
+The releasing itself is done with `twine <https://twine.readthedocs.io/en/latest/index.html>`_
+
+* Build the software: `python -m build` (if not using `tox`) for creating the packages
+* Check if everything is ready for deplyoment: `python -m twine check dist/*`
+* Upload artifacts: `python -m twine upload --repository pypitest --verbose dist/*`
 
 
 Known Problems
