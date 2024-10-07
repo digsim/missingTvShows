@@ -37,7 +37,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pex tox tox-gh setuptools_scm
 
-      - name: Check pypi versions
+      - name: Save package version for later
         run: |
           echo "local_version=$(python -m setuptools_scm)" >> $GITHUB_OUTPUT
         id: versioncheck

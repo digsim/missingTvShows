@@ -46,10 +46,9 @@ jobs:
           export PKG_CONFIG_PATH=$(brew --prefix)/opt/mysql-client/lib/pkgconfig
           export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
           export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
-          python -m pip
-          install pex tox tox-gh setuptools_scm
+          python -m pip install pex tox tox-gh setuptools_scm
 
-      - name: Check pypi versions
+      - name: Save package version for later
         run: |
           echo "local_version=$(python -m setuptools_scm)" >> $GITHUB_OUTPUT
         id: versioncheck
