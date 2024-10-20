@@ -31,12 +31,12 @@ missingTvShows = "mtvs.main.__main__:cli"
 
 [project.optional-dependencies]
 docs = [
-  "Sphinx>=7.2.6",
+  "Sphinx>=8.1.3",
   "sphinx_rtd_theme",
 ]
 test = [
   "build",
-  "check-manifest >= 0.42",
+  "check-manifest >= 0.50",
   "flake8",
   "pytest",
   "build",
