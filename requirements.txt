@@ -1,8 +1,8 @@
 colorama==0.4.6
-mysqlclient==2.2.4
+mysqlclient==2.2.5
 progressbar2==4.5.0
 pyparsing==3.2.0
 PyYAML==6.0.2
-SQLAlchemy==2.0.35
+SQLAlchemy==2.0.36
 SQLAlchemy-Utils==0.41.2
 tvdb-v4-official==1.1.0
