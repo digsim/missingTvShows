@@ -4,5 +4,5 @@ progressbar2==4.5.0
 pyparsing==3.2.3
 PyYAML==6.0.2
 SQLAlchemy==2.0.43
-SQLAlchemy-Utils==0.41.2
+SQLAlchemy-Utils==0.42.0
 tvdb-v4-official==1.1.0
