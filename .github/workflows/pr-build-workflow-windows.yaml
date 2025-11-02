@@ -43,11 +43,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pex tox tox-gh setuptools_scm
 
-      - name: Install MySQL client (for headers and libs)
-        run: |
-          choco install mysql-client
-          choco install mysql-python
-
       - name: Save package version for later
         run: |
           echo "local_version=$(python -m setuptools_scm)" >> $GITHUB_OUTPUT
