@@ -42,7 +42,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pex tox tox-gh setuptools_scm
-          python -m pip insatll pymsql
+
+      - name: Install MySQL client (for headers and libs)
+        run: choco install mysql --version=8.0.37 --yes
 
       - name: Save package version for later
         run: |
@@ -51,6 +53,8 @@ jobs:
 
       - name: Build Software
         run: |
+          setx INCLUDE "C:\Program Files\MySQL\MySQL Server 8.0\include;%INCLUDE%"
+          setx LIB "C:\Program Files\MySQL\MySQL Server 8.0\lib;%LIB%"
           tox
 
       # no package build on windows due to fnctl https://github.com/pantsbuild/pex/issues/1155
