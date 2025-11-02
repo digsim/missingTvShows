@@ -28,7 +28,7 @@ project = "Missing TV Shows for Kodi"
 this_year = datetime.date.today().year
 copyright = f"{this_year}, Andreas Ruppen"
 if on_rtd:
-    version = "1.2.2.dev0"    # noqa: F811
+    version = "1.2.2.dev0"  # noqa: F811
 else:
     version = version("missingTvShows")
 release = version

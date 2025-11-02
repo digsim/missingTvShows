@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from mtvs.Kodi.missing_tvshows import TVShows   # noqa: F401
+from mtvs.Kodi.missing_tvshows import TVShows  # noqa: F401
 
 
 class TestDBQueries(TestCase):
