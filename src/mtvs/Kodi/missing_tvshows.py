@@ -71,7 +71,7 @@ class TVShows:
         self.__produceCVS = False
         self.__totalOfSeriesSeason = 0
         self.__alreadyCheckedSeriesSeason = 0
-        self.__random = random.SystemRandom(time.localtime())
+        self.__random = random.SystemRandom(time.time())
         # Config stuff from config file
         self.__tvdbdatabse = tvdbdatabase
         self.__api_key = apikey
