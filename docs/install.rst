@@ -32,7 +32,7 @@ From a terminal launch::
 
     pip install .
 
-This will compile and install the project to the pyhton libraries (eg. ``/usr/local/lib/python3.12/site-packages/missingTvShows-1.2.2.dev51+gf5133b9.d20240930.dist-info``). Furthermore it will install a script in ``/usr/local/bin/``:
+This will compile and install the project to the Python libraries (eg. ``/usr/local/lib/python3.12/site-packages/missingTvShows-1.2.2.dev51+gf5133b9.d20240930.dist-info``). Furthermore it will install a script in ``/usr/local/bin/``:
 * missingtvshows
 
 Upon the first start a copy of a pristine application and logging configuration are created in the user's home directory ``~/.MissingTVShows/``. From this point on configuration files are read from this location. It is however possible to overwrite them either by placing a file with the same name (but prefixed with a dot eg. ``.logging.conf``) in the current working directory.
@@ -42,9 +42,36 @@ Development installation
 
 from a terminal launch::
 
+    pip install -r requirements_dev.txt
     pip install -e .
 
 does the same as before but, uses links instead of copying files.
+
+Code Guideline Checking
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+To check the code guidelines run::
+
+    flake8 --max-line-length=88 --statistics --extend-ignore=E501,E203,W503 --select=E,W,F .
+
+
+After fixing the issues you can reformat the code with::
+
+    black .
+
+Run type checks
+^^^^^^^^^^^^^^^^^^^^^^
+
+To run type checks on the code base use::
+
+    mypy src tests
+
+All in one command
+^^^^^^^^^^^^^^^^^^^^^^
+
+To run code guideline checks and type checks in one command use::
+
+    tox -e lint,type
 
 Clean Working directory
 ^^^^^^^^^^^^^^^^^^^^^^^^
