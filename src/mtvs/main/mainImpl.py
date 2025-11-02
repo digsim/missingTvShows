@@ -18,9 +18,7 @@ class MainImpl(Main):
         self.__configName = "tvshows.conf"
         self.__logFileName = "tvshows.log"
 
-        super().__init__(
-            self.__configDirName, self.__configName, self.__logFileName
-        )
+        super().__init__(self.__configDirName, self.__configName, self.__logFileName)
         self.__log = logging.getLogger("Tube4Droid")
 
         self.__command = None

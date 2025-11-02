@@ -116,7 +116,18 @@ class TVShows:
         db_connection_string = ""
         try:
             if self.__dbdialect == "mysql":
-                db_connection_string = 'mysql://' + self.__dbuser + ':' + self.__dbpasswd + '@' + self.__dbhostname + ':' + self.__dbport + '/' + self.__database
+                db_connection_string = (
+                    "mysql://"
+                    + self.__dbuser
+                    + ":"
+                    + self.__dbpasswd
+                    + "@"
+                    + self.__dbhostname
+                    + ":"
+                    + self.__dbport
+                    + "/"
+                    + self.__database
+                )
             elif self.__dbdialect == "sqlite":
                 db_connection_string = "sqlite:///" + self.__database
                 if not self._is_sqlite3(self.__database):
@@ -228,7 +239,9 @@ class TVShows:
         self.__totalOfSeriesSeason = len(nonewatched) + len(somewatched)
         return nonewatched, somewatched
 
-    def _get_episodes(self, season: int, seriesId: int) -> list[tuple[str, str, str, str]]:
+    def _get_episodes(
+        self, season: int, seriesId: int
+    ) -> list[tuple[str, str, str, str]]:
         """
         Queries the episodes of a given serie and a given season.
 
@@ -359,7 +372,14 @@ class TVShows:
         session.close()
         return number_of_episodes
 
-    def get_series_information(self) -> tuple[list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow], list[mtvs._types.MtvsTvShow]]:
+    def get_series_information(
+        self,
+    ) -> tuple[
+        list[mtvs._types.MtvsTvShow],
+        list[mtvs._types.MtvsTvShow],
+        list[mtvs._types.MtvsTvShow],
+        list[mtvs._types.MtvsTvShow],
+    ]:
         """
         Main function. Puts all pieces together. It queries the local Kodi DB and compares the locally availalbe
         episodes for each Serie/Season combinaton and compares these results with the avialable episodes on
@@ -509,7 +529,9 @@ class Base(DeclarativeBase):
 class TVShow(Base):
     __tablename__ = "THETVDB"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement="ignore_fk")
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement="ignore_fk"
+    )
     seriesid: Mapped[int] = mapped_column(Integer)
     season: Mapped[int] = mapped_column(Integer)
     totalnumofepisodes: Mapped[int] = mapped_column(Integer)

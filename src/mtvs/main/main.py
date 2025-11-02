@@ -42,7 +42,9 @@ class Main:
             logging_config = self.__pathjoin(self.__USER_CONFIG_DIR, "logging.yaml")
         with open(logging_config) as f:
             config = yaml.safe_load(f.read())
-        config['handlers']['fileHandler']['filename'] = self.__pathjoin(self.__USER_CONFIG_DIR, self.__logFileName)
+        config["handlers"]["fileHandler"]["filename"] = self.__pathjoin(
+            self.__USER_CONFIG_DIR, self.__logFileName
+        )
 
         logging.config.dictConfig(config)
         self.__log = logging.getLogger("Tube4Droid")
@@ -114,7 +116,12 @@ class Main:
         if not os.path.exists(
             self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName)
         ):
-            print('No application specific config file found. Creating ' + self.__configName + ' in ' + self.__USER_CONFIG_DIR)
+            print(
+                "No application specific config file found. Creating "
+                + self.__configName
+                + " in "
+                + self.__USER_CONFIG_DIR
+            )
             shutil.copy(
                 self.__pathjoin(self.__CONFIG_DIR, self.__configName),
                 self.__pathjoin(self.__USER_CONFIG_DIR, self.__configName),
