@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-case-conflict
       - id: check-yaml
@@ -16,7 +16,7 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/asottile/reorder-python-imports
-    rev: v3.14.0
+    rev: v3.16.0
     hooks:
       - id: reorder-python-imports
         args: [
@@ -25,31 +25,31 @@ repos:
         ]
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.18.0
+    rev: v3.21.0
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
+    rev: 7.3.0
     hooks:
       - id: flake8
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.12.1
+    rev: v1.18.2
     hooks:
       - id: mypy
         exclude: ^(docs/|example-plugin/)
         additional_dependencies: [types_colorama,types-PyYAML,types-setuptools]
 
   - repo: https://github.com/AliYmn/conventional-commits-check
-    rev: V2.0.0  # Use the latest release version
+    rev: V2.9.0  # Use the latest release version
     hooks:
       - id: conventional-commits-check
         stages: [commit-msg]
-    #args: ["--emoji-disabled"] # Add this argument to disable emojis
+    args: ["--emoji-disabled"] # Add this argument to disable emojis
 
   # - repo: https://github.com/psf/black
-  #   rev: 22.10.0
+  #   rev: 25.9.0
   #   hooks:
   #   - id: black

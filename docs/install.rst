@@ -25,11 +25,31 @@ Simply run::
 From Sources
 -------------
 
+Prepare the environment
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create a virtual environment and activate it::
+
+    python3 -m venv venv-312
+    source venv-312/bin/activate
+
+Define environment variables for compilation if needed (eg. for MySQL support)::
+
+    export GITHUB_API_TOKEN=XXXXXX-XXXX-XXXX-XXXXXXXXXXXX
+    export PYPI_API_TOKEN=XXXXXX-XXXX-XXXX-XXXXXXXXXXXX
+    export PKG_CONFIG_PATH=$(brew --prefix)/opt/mysql-client/lib/pkgconfig
+    export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+    export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
+
+Fill an `.envrc` file with these environment variables.
+
+
 Final installation
 ^^^^^^^^^^^^^^^^^^
 
 From a terminal launch::
 
+    pip install -r requirements_dev.txt
     pip install .
 
 This will compile and install the project to the Python libraries (eg. ``/usr/local/lib/python3.12/site-packages/missingTvShows-1.2.2.dev51+gf5133b9.d20240930.dist-info``). Furthermore it will install a script in ``/usr/local/bin/``:
@@ -45,7 +65,11 @@ from a terminal launch::
     pip install -r requirements_dev.txt
     pip install -e .
 
-does the same as before but, uses links instead of copying files.
+does the same as before but, uses links instead of copying files. On macOS a few environment variables need to be defined::
+
+    export PKG_CONFIG_PATH=$(brew --prefix)/opt/mysql-client/lib/pkgconfig
+    export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mysqlclient)
+    export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mysqlclient)
 
 Code Guideline Checking
 ^^^^^^^^^^^^^^^^^^^^^^^^
