@@ -3,10 +3,13 @@ build
 coverage
 flake8
 mypy
+pex
 pre-commit
 pytest
 setuptools_scm
 sqlalchemy-stubs
+tox
+tox-gh
 twine
 types-colorama
 types-PyYAML
