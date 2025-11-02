@@ -36,15 +36,16 @@ import time
 import typing
 
 import tvdb_v4_official  # type: ignore
-from sqlalchemy import Column
 from sqlalchemy import create_engine
+from sqlalchemy import Float
 from sqlalchemy import func
 from sqlalchemy import Integer
 from sqlalchemy import MetaData
-from sqlalchemy import REAL
 from sqlalchemy import Table
 from sqlalchemy.exc import ProgrammingError
-from sqlalchemy.orm import DeclarativeBase  # type: ignore
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists  # type: ignore
 
@@ -136,7 +137,7 @@ class TVShows:
         session = sessionmaker(bind=engine)
         self.__session = session()
         metaData = MetaData()
-        metaData.bind = engine
+        metaData.reflect(engine)
 
         # Map XBMC tables to objects
         self.__tvshow = Table("tvshow", metaData, autoload_with=engine)
@@ -283,7 +284,15 @@ class TVShows:
         query = (
             session.query(TVShow).filter_by(seriesid=series_id).filter_by(season=season)
         )
-        localshow: TVShow = query.first()
+        localshow: TVShow | None = query.first()
+
+        if localshow is None:
+            self.__log.debug(
+                "No local cache entry found for series_id: {:d} season: {:d}".format(
+                    series_id, season
+                )
+            )
+            return -1
 
         number_of_episodes = 0
         now = time.mktime(time.localtime())
@@ -500,11 +509,11 @@ class Base(DeclarativeBase):
 class TVShow(Base):
     __tablename__ = "THETVDB"
 
-    id = Column(Integer, primary_key=True, autoincrement="ignore_fk")
-    seriesid = Column(Integer)
-    season = Column(Integer)
-    totalnumofepisodes = Column(Integer)
-    lastupdated = Column(REAL)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement="ignore_fk")
+    seriesid: Mapped[int] = mapped_column(Integer)
+    season: Mapped[int] = mapped_column(Integer)
+    totalnumofepisodes: Mapped[int] = mapped_column(Integer)
+    lastupdated: Mapped[float] = mapped_column(Float)
 
 
 if __name__ == "__main__":
