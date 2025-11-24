@@ -33,7 +33,7 @@ jobs:
     outputs:
       local_version: ${{ steps.versioncheck.outputs.local_version }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Set up Python
       uses: actions/setup-python@v6
@@ -134,7 +134,7 @@ jobs:
       id-token: write  # IMPORTANT: mandatory for sigstore
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Download all the dists
       uses: actions/download-artifact@v6
