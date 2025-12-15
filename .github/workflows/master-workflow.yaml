@@ -56,7 +56,7 @@ jobs:
 
       # Order is important we don't want to have the pex uploaded to pypi
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: python-package-distributions-${{ matrix.py }}
           path: dist/
@@ -104,7 +104,7 @@ jobs:
 
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         pattern: python-package-distributions-3.12
         path: dist/
