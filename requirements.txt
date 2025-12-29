@@ -1,7 +1,7 @@
 colorama==0.4.6
 mysqlclient==2.2.7
 progressbar2==4.5.0
-pyparsing==3.2.5
+pyparsing==3.3.1
 PyYAML==6.0.3
 SQLAlchemy==2.0.45
 SQLAlchemy-Utils==0.42.1
