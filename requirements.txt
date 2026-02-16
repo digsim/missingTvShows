@@ -1,5 +1,5 @@
 colorama==0.4.6
-mysqlclient==2.2.7
+mysqlclient==2.2.8
 progressbar2==4.5.0
 pyparsing==3.3.2
 PyYAML==6.0.3
