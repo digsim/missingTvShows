@@ -1,4 +1,4 @@
-adnitc contributors
+missingTvShows contributors
 ======================
 
 - Andreas Ruppen <andreas.ruppen@gmail.com>
